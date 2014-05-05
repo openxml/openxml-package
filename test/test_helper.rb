@@ -11,3 +11,5 @@ require "turn"
 require "pry"
 require "rr"
 require "shoulda/context"
+
+require "open_xml_package"
