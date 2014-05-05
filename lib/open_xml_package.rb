@@ -6,9 +6,23 @@ require "zip"
 class OpenXmlPackage
   attr_reader :parts
 
-  def initialize
-    @parts = []
+  def self.open(path)
+    if block_given?
+      Zip::File.open(path) do |zipfile|
+        yield new(zipfile)
+      end
+    else
+      new Zip::File.open(path)
+    end
   end
+
+  def initialize(zipfile=nil)
+    @zipfile = zipfile
+    @parts = []
+    read_zipfile! if zipfile
+  end
+
+
 
   def add_part(path_or_part, content=nil)
     path = path_or_part
@@ -16,6 +30,16 @@ class OpenXmlPackage
     content = path_or_part.read if path_or_part.respond_to?(:read)
     
     @parts << Part.new(path, content)
+  end
+
+  def get_part(path)
+    @parts.detect { |part| part.path == path }
+  end
+
+
+
+  def close
+    zipfile.close if zipfile
   end
 
   def write_to(path)
@@ -30,6 +54,16 @@ class OpenXmlPackage
         io.put_next_entry part.path
         io.write part.content
       end
+    end
+  end
+
+private
+
+  attr_reader :zipfile
+
+  def read_zipfile!
+    zipfile.entries.each do |entry|
+      @parts << Part.new(entry.name, entry)
     end
   end
 

@@ -1,6 +1,6 @@
 require "test_helper"
 require "fileutils"
-require "digest"
+require "set"
 
 
 class OpenXmlPackageTest < ActiveSupport::TestCase
@@ -46,6 +46,44 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
   
   
   
+  context "Reading" do
+    context "Given a sample Word document" do
+      setup do
+        @temp_file = expand_path "./support/sample.docx"
+        @package = OpenXmlPackage.open(temp_file)
+        @expected_contents = Set[
+          "[Content_Types].xml",
+          "_rels/.rels",
+          "docProps/app.xml",
+          "docProps/core.xml",
+          "docProps/thumbnail.jpeg",
+          "word/_rels/document.xml.rels",
+          "word/document.xml",
+          "word/fontTable.xml",
+          "word/media/image1.png",
+          "word/settings.xml",
+          "word/styles.xml",
+          "word/stylesWithEffects.xml",
+          "word/theme/theme1.xml",
+          "word/webSettings.xml" ]
+      end
+      
+      teardown do
+        package.close
+      end
+      
+      should "discover the expected parts" do
+        assert_equal @expected_contents, package.parts.map(&:path).to_set
+      end
+      
+      should "read their content on-demand" do
+        assert_equal web_settings_content, package.get_part("word/webSettings.xml").content
+      end
+    end
+  end
+  
+  
+  
 private
   
   def document_content
@@ -54,6 +92,10 @@ private
       <body>Works!</body>
     </document>
     STR
+  end
+  
+  def web_settings_content
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<w:webSettings xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" xmlns:w14=\"http://schemas.microsoft.com/office/word/2010/wordml\" mc:Ignorable=\"w14\"><w:allowPNG/><w:doNotSaveAsSingleFile/></w:webSettings>"
   end
   
   def expand_path(path)
