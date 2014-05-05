@@ -1,4 +1,5 @@
 require "open_xml_package/part"
+require "open_xml_package/rubyzip_fix"
 require "open_xml_package/version"
 require "zip"
 
@@ -14,6 +15,22 @@ class OpenXmlPackage
     else
       new Zip::File.open(path)
     end
+  end
+
+  def self.from_stream(stream)
+    stream = StringIO.new(stream) if stream.is_a?(String)
+    
+    # Hack: Zip::Entry.read_c_dir_entry initializes
+    # a new Zip::Entry by calling `io.path`. Zip::Entry
+    # uses this to open the original zipfile; but in
+    # this case, the StringIO _is_ the original.
+    def stream.path
+      self
+    end
+    
+    zipfile = ::Zip::File.new("", true, true)
+    zipfile.read_from_stream(stream)
+    new(zipfile)
   end
 
   def initialize(zipfile=nil)

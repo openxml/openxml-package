@@ -50,7 +50,6 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
     context "Given a sample Word document" do
       setup do
         @temp_file = expand_path "./support/sample.docx"
-        @package = OpenXmlPackage.open(temp_file)
         @expected_contents = Set[
           "[Content_Types].xml",
           "_rels/.rels",
@@ -68,16 +67,36 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
           "word/webSettings.xml" ]
       end
       
-      teardown do
-        package.close
+      context ".open" do
+        setup do
+          @package = OpenXmlPackage.open(temp_file)
+        end
+        
+        teardown do
+          package.close
+        end
+        
+        should "discover the expected parts" do
+          assert_equal @expected_contents, package.parts.map(&:path).to_set
+        end
+        
+        should "read their content on-demand" do
+          assert_equal web_settings_content, package.get_part("word/webSettings.xml").content
+        end
       end
       
-      should "discover the expected parts" do
-        assert_equal @expected_contents, package.parts.map(&:path).to_set
-      end
-      
-      should "read their content on-demand" do
-        assert_equal web_settings_content, package.get_part("word/webSettings.xml").content
+      context ".from_stream" do
+        setup do
+          @package = OpenXmlPackage.from_stream(File.open(temp_file, "rb", &:read))
+        end
+        
+        should "also discover the expected parts" do
+          assert_equal @expected_contents, package.parts.map(&:path).to_set
+        end
+        
+        should "read their content" do
+          assert_equal web_settings_content, package.get_part("word/webSettings.xml").content
+        end
       end
     end
   end
