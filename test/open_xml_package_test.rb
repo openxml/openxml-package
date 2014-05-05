@@ -15,10 +15,10 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
     context "Given a simple part" do
       setup do
         @package = OpenXmlPackage.new
-        package.add_part "content/document.xml", some_content
+        package.add_part "content/document.xml", a_part
       end
       
-      should "write the expected file" do
+      should "write a valid zip file with the expected parts" do
         package.write_to temp_file
         assert File.exists?(temp_file), "Expected the file #{temp_file.inspect} to have been created"
         assert_equal %w{content/document.xml}, Zip::File.open(temp_file).entries.map(&:name)
@@ -30,7 +30,7 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
   
 private
   
-  def some_content
+  def a_part
     StringIO.new(<<-STR)
     <document>
       <body>Works!</body>
