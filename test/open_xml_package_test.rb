@@ -6,6 +6,24 @@ require "digest"
 class OpenXmlPackageTest < ActiveSupport::TestCase
   attr_reader :package, :temp_file
   
+  
+  
+  context "#add_part" do
+    should "accept a path and content" do
+      package = OpenXmlPackage.new
+      package.add_part "PATH", "CONTENT"
+      assert_equal 1, package.parts.count
+    end
+    
+    should "accept a part that responds to :path and :read" do
+      package = OpenXmlPackage.new
+      package.add_part OpenXmlPackage::Part.new("PATH", "CONTENT")
+      assert_equal 1, package.parts.count
+    end
+  end
+  
+  
+  
   context "Writing" do
     setup do
       @temp_file = expand_path "../tmp/test.zip"
@@ -15,7 +33,7 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
     context "Given a simple part" do
       setup do
         @package = OpenXmlPackage.new
-        package.add_part "content/document.xml", a_part
+        package.add_part "content/document.xml", document_content
       end
       
       should "write a valid zip file with the expected parts" do
@@ -30,8 +48,8 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
   
 private
   
-  def a_part
-    StringIO.new(<<-STR)
+  def document_content
+    <<-STR
     <document>
       <body>Works!</body>
     </document>
