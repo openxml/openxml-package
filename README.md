@@ -58,3 +58,4 @@ To Do.
  - [DocumentFormat.OpenXml.Packaging.OpenXmlPackage](http://msdn.microsoft.com/en-us/library/documentformat.openxml.packaging.openxmlpackage_members(v=office.14).aspx)
  - [DocumentFormat.OpenXml.Packaging.OpenXmlPartContainer](http://msdn.microsoft.com/en-us/library/documentformat.openxml.packaging.openxmlpartcontainer_members(v=office.14).aspx)
  - [DocumentFormat.OpenXml.Packaging.OpenXmlPart](http://msdn.microsoft.com/en-us/library/documentformat.openxml.packaging.openxmlpart_members(v=office.14).aspx)
+ - [System.IO.Packaging.Package](http://msdn.microsoft.com/en-us/library/system.io.packaging.package.aspx)
