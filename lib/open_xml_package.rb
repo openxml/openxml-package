@@ -19,7 +19,13 @@ class OpenXmlPackage
   end
 
   def write_to(path)
-    Zip::OutputStream.open(path) do |io|
+    File.open(path, "w") do |file|
+      file.write to_stream.string
+    end
+  end
+  
+  def to_stream
+    Zip::OutputStream.write_buffer do |io|
       parts.each do |part|
         io.put_next_entry part.path
         io.write part.content
