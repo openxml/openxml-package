@@ -30,18 +30,21 @@ You can assemble an Open XML Package in-memory and then write it to disk:
 
 ```ruby
 package = OpenXmlPackage.new
-package.add_part "content/document.xml", document_part
-package.add_part "media/image.png", image_part
+package.add_part "content/document.xml", "<document></document>"
+package.add_part "media/image.png", File.open(image_path, "rb", &:read)
 package.write_to "~/Desktop/output.zip"
 ```
-
-It's up to your client library to define `document_part` and `media_part`. At present, `OpenXmlPackage` only requires that they respond to `read`.
 
 
 #### Reading
 
-To Do.
+You can read the contents of an Open XML Package:
 
+```ruby
+OpenXmlPackage.open("~/Desktop/output.zip") do |package|
+  package.parts.map(&:path) # => ["content/document.xml", "media/image.png"]
+end
+```
 
 
 
