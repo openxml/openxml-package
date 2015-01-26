@@ -9,15 +9,9 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
   
   
   context "#add_part" do
-    should "accept a path and content" do
-      package = OpenXmlPackage.new
-      package.add_part "PATH", "CONTENT"
-      assert_equal 1, package.parts.count
-    end
-    
-    should "accept a part that responds to :path and :read" do
-      package = OpenXmlPackage.new
-      package.add_part OpenXmlPackage::Part.new("PATH", "CONTENT")
+    should "accept a path and a part" do
+      package = OpenXml::Package.new
+      package.add_part "PATH", OpenXml::Part.new
       assert_equal 1, package.parts.count
     end
   end
@@ -32,8 +26,8 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
     
     context "Given a simple part" do
       setup do
-        @package = OpenXmlPackage.new
-        package.add_part "content/document.xml", document_content
+        @package = OpenXml::Package.new
+        package.add_part "content/document.xml", OpenXml::Parts::UnparsedPart.new(document_content)
       end
       
       should "write a valid zip file with the expected parts" do
@@ -69,7 +63,7 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
       
       context ".open" do
         setup do
-          @package = OpenXmlPackage.open(temp_file)
+          @package = OpenXml::Package.open(temp_file)
         end
         
         teardown do
@@ -77,7 +71,7 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
         end
         
         should "discover the expected parts" do
-          assert_equal @expected_contents, package.parts.map(&:path).to_set
+          assert_equal @expected_contents, package.parts.keys.to_set
         end
         
         should "read their content on-demand" do
@@ -87,11 +81,11 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
       
       context ".from_stream" do
         setup do
-          @package = OpenXmlPackage.from_stream(File.open(temp_file, "rb", &:read))
+          @package = OpenXml::Package.from_stream(File.open(temp_file, "rb", &:read))
         end
         
         should "also discover the expected parts" do
-          assert_equal @expected_contents, package.parts.map(&:path).to_set
+          assert_equal @expected_contents, package.parts.keys.to_set
         end
         
         should "read their content" do
