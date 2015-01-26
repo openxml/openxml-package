@@ -11,8 +11,9 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
   context "#add_part" do
     should "accept a path and a part" do
       package = OpenXml::Package.new
-      package.add_part "PATH", OpenXml::Part.new
-      assert_equal 1, package.parts.count
+      assert_difference "package.parts.count", +1 do
+        package.add_part "PATH", OpenXml::Part.new
+      end
     end
   end
   
@@ -33,7 +34,7 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
       should "write a valid zip file with the expected parts" do
         package.write_to temp_file
         assert File.exists?(temp_file), "Expected the file #{temp_file.inspect} to have been created"
-        assert_equal %w{content/document.xml}, Zip::File.open(temp_file).entries.map(&:name)
+        assert_equal %w{[Content_Types].xml content/document.xml}, Zip::File.open(temp_file).entries.map(&:name)
       end
     end
   end

@@ -1,6 +1,6 @@
 module OpenXml
   module Parts
-    class ContentTypes << OpenXml::Part
+    class ContentTypes < OpenXml::Part
       attr_reader :defaults, :overrides
 
       def initialize(defaults={}, overrides={})
