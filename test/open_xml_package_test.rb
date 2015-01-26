@@ -93,6 +93,22 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
           assert_equal web_settings_content, package.get_part("word/webSettings.xml").content
         end
       end
+      
+      context "content_types" do
+        setup do
+          @package = OpenXml::Package.open(temp_file)
+        end
+        
+        teardown do
+          package.close
+        end
+        
+        should "be parsed" do
+          assert_equal %w{jpeg png rels xml}, package.content_types.defaults.keys.sort
+          assert_equal "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml",
+            package.content_types.overrides["/word/document.xml"]
+        end
+      end
     end
   end
   

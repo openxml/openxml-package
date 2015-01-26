@@ -3,6 +3,18 @@ module OpenXml
     class ContentTypes < OpenXml::Part
       attr_reader :defaults, :overrides
 
+      def self.parse(xml)
+        document = Nokogiri(xml)
+        self.new.tap do |part|
+          document.css("Default").each do |default|
+            part.add_default default["Extension"], default["ContentType"]
+          end
+          document.css("Override").each do |default|
+            part.add_override default["PartName"], default["ContentType"]
+          end
+        end
+      end
+
       def initialize(defaults={}, overrides={})
         @defaults = defaults
         @overrides = overrides

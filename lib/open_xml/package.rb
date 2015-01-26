@@ -110,7 +110,11 @@ module OpenXml
 
     # Subclasses can override this method
     def part_for(entry)
-      Parts::UnparsedPart.new(entry)
+      part = Parts::UnparsedPart.new(entry)
+      case entry.name
+      when "[Content_Types].xml" then part = @content_types = Parts::ContentTypes.parse(part.content)
+      end
+      part
     end
 
   end
