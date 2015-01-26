@@ -3,6 +3,11 @@ module OpenXml
     class ContentTypes < OpenXml::Part
       attr_reader :defaults, :overrides
 
+      REQUIRED_DEFAULTS = {
+        "xml" => "application/xml",
+        "rels" => "application/vnd.openxmlformats-package.relationships+xml"
+      }.freeze
+
       def self.parse(xml)
         document = Nokogiri(xml)
         self.new.tap do |part|
@@ -16,7 +21,7 @@ module OpenXml
       end
 
       def initialize(defaults={}, overrides={})
-        @defaults = defaults
+        @defaults = REQUIRED_DEFAULTS.merge(defaults)
         @overrides = overrides
       end
 
