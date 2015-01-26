@@ -1,11 +1,13 @@
 require "open_xml_package/version"
+require "open_xml/content_types"
+require "open_xml/content_types_presets"
 require "open_xml/rubyzip_fix"
 require "open_xml/parts"
 require "zip"
 
 module OpenXml
   class Package
-    attr_reader :parts
+    attr_reader :parts, :content_types
 
     def self.open(path)
       if block_given?
@@ -33,9 +35,19 @@ module OpenXml
       new(zipfile)
     end
 
+    def self.content_types
+      content_types_presets = OpenXml::ContentTypesPresets.new
+      content_types_presets.instance_eval &block
+    end
+
     def initialize(zipfile=nil)
       @zipfile = zipfile
+      presets = self.class.content_types_presets
+      @content_types = OpenXml::ContentTypes.new(presets.defaults, presets.overrides)
+
       @parts = {}
+
+      add_part content_types, "[Content_Types].xml"
       read_zipfile! if zipfile
     end
 
