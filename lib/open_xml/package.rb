@@ -1,5 +1,4 @@
 require "open_xml_package/version"
-require "open_xml/content_types"
 require "open_xml/content_types_presets"
 require "open_xml/rubyzip_fix"
 require "open_xml/parts"
