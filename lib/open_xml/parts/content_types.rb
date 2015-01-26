@@ -33,6 +33,10 @@ module OpenXml
         overrides[part_name] = content_type
       end
 
+      def of(path)
+        overrides.fetch(path, defaults[File.extname(path)[1..-1]])
+      end
+
       def to_xml
         build_xml do |xml|
           xml.Types(xmlns: "http://schemas.openxmlformats.org/package/2006/content-types") {

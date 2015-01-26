@@ -2,7 +2,7 @@ require "open_xml_package/version"
 require "open_xml/content_types_presets"
 require "open_xml/rubyzip_fix"
 require "open_xml/parts"
-require "open_xml/elements"
+require "open_xml/errors"
 require "zip"
 
 module OpenXml
@@ -69,6 +69,11 @@ module OpenXml
       @parts.fetch(path)
     end
 
+    def type_of(path)
+      raise MissingContentTypesPart unless content_types
+      content_types.of(path)
+    end
+
 
 
     def close
@@ -96,7 +101,13 @@ module OpenXml
 
     def read_zipfile!
       zipfile.entries.each do |entry|
-        add_part entry.name, part_for(entry)
+        path, part = entry.name, Parts::UnparsedPart.new(entry)
+        
+        if path == "[Content_Types].xml"
+          add_part path, @content_types = Parts::ContentTypes.parse(part.content)
+        else
+          add_part path, part_for(path, type_of(path), part)
+        end
       end
     end
 
@@ -108,12 +119,7 @@ module OpenXml
       add_part "[Content_Types].xml", content_types
     end
 
-    # Subclasses can override this method
-    def part_for(entry)
-      part = Parts::UnparsedPart.new(entry)
-      case entry.name
-      when "[Content_Types].xml" then part = @content_types = Parts::ContentTypes.parse(part.content)
-      end
+    def part_for(path, content_type, part)
       part
     end
 
