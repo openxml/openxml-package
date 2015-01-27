@@ -4,8 +4,8 @@ module OpenXml
       attr_reader :defaults, :overrides
 
       REQUIRED_DEFAULTS = {
-        "xml" => "application/xml",
-        "rels" => "application/vnd.openxmlformats-package.relationships+xml"
+        "xml" => Types::XML,
+        "rels" => Types::RELATIONSHIPS
       }.freeze
 
       def self.parse(xml)

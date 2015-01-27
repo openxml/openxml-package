@@ -1,24 +1,20 @@
 require "test_helper"
 
-
 class ContentTypesTest < ActiveSupport::TestCase
   attr_reader :content_types
   
-  XML_TYPE = "application/xml"
-  RELATIONSHIP_TYPE = "application/vnd.openxmlformats-package.relationships+xml"
   WORDPROCESSING_DOCUMENT_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"
   
   setup do
     @content_types = OpenXml::Parts::ContentTypes.new(
-      {"xml" => XML_TYPE, "rels" => RELATIONSHIP_TYPE},
+      {"xml" => OpenXml::Types::XML, "rels" => OpenXml::Types::RELATIONSHIPS},
       {"word/document.xml" => WORDPROCESSING_DOCUMENT_TYPE})
   end
   
   
-  
   context "Given a path without an override" do
     should "identify the content type from its extension" do
-      assert_equal XML_TYPE, content_types.of("content/some.xml")
+      assert_equal OpenXml::Types::XML, content_types.of("content/some.xml")
     end
   end
   
@@ -33,7 +29,6 @@ class ContentTypesTest < ActiveSupport::TestCase
       assert_equal nil, content_types.of("img/screenshot.jpg")
     end
   end
-  
   
   
 end
