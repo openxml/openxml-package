@@ -8,7 +8,7 @@ require "zip"
 
 module OpenXml
   class Package
-    attr_reader :parts, :content_types
+    attr_reader :parts, :content_types, :rels
     @content_types_presets = OpenXml::ContentTypesPresets.new
 
 
@@ -71,7 +71,7 @@ module OpenXml
     end
 
     def type_of(path)
-      raise MissingContentTypesPart unless content_types
+      raise Errors::MissingContentTypesPart, "We haven't yet read [ContentTypes].xml; but are reading #{path.inspect}" unless content_types
       content_types.of(path)
     end
 
@@ -103,11 +103,10 @@ module OpenXml
     def read_zipfile!
       zipfile.entries.each do |entry|
         path, part = entry.name, Parts::UnparsedPart.new(entry)
-        
-        if path == "[Content_Types].xml"
-          add_part path, @content_types = Parts::ContentTypes.parse(part.content)
-        else
-          add_part path, part_for(path, type_of(path), part)
+        add_part path, case path
+        when "[Content_Types].xml" then @content_types = Parts::ContentTypes.parse(part.content)
+        when "_rels/.rels" then @rels = Parts::Rels.parse(part.content)
+        else part_for(path, type_of(path), part)
         end
       end
     end
@@ -118,10 +117,16 @@ module OpenXml
       presets = self.class.content_types_presets
       @content_types = Parts::ContentTypes.new(presets.defaults, presets.overrides)
       add_part "[Content_Types].xml", content_types
+
+      @rels = Parts::Rels.new
+      add_part "_rels/.rels", rels
     end
 
     def part_for(path, content_type, part)
-      part
+      case content_type
+      when Types::RELATIONSHIPS then Parts::Rels.parse(part.content)
+      else part
+      end
     end
 
   end

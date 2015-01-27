@@ -2,7 +2,6 @@ require "test_helper"
 require "fileutils"
 require "set"
 
-
 class OpenXmlPackageTest < ActiveSupport::TestCase
   attr_reader :package, :temp_file
   
@@ -34,7 +33,8 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
       should "write a valid zip file with the expected parts" do
         package.write_to temp_file
         assert File.exists?(temp_file), "Expected the file #{temp_file.inspect} to have been created"
-        assert_equal %w{[Content_Types].xml content/document.xml}, Zip::File.open(temp_file).entries.map(&:name)
+        assert_equal %w{[Content_Types].xml _rels/.rels content/document.xml},
+          Zip::File.open(temp_file).entries.map(&:name)
       end
     end
   end
@@ -94,7 +94,7 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
         end
       end
       
-      context "content_types" do
+      context "ContentTypes" do
         setup do
           @package = OpenXml::Package.open(temp_file)
         end
@@ -107,6 +107,21 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
           assert_equal %w{jpeg png rels xml}, package.content_types.defaults.keys.sort
           assert_equal "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml",
             package.content_types.overrides["/word/document.xml"]
+        end
+      end
+      
+      context "Rels" do
+        setup do
+          @package = OpenXml::Package.open(temp_file)
+        end
+        
+        teardown do
+          package.close
+        end
+        
+        should "be parsed" do
+          assert_equal %w{docProps/core.xml docProps/app.xml word/document.xml docProps/thumbnail.jpeg},
+            package.rels.map(&:target)
         end
       end
     end
