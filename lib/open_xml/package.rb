@@ -9,12 +9,13 @@ require "zip"
 module OpenXml
   class Package
     attr_reader :parts, :content_types, :rels
-    @content_types_presets = OpenXml::ContentTypesPresets.new
 
 
 
     class << self
-      attr_reader :content_types_presets
+      def content_types_presets
+        @content_types_presets ||= OpenXml::ContentTypesPresets.new
+      end
       
       def content_types(&block)
         content_types_presets.instance_eval &block
