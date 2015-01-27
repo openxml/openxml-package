@@ -87,6 +87,7 @@ module OpenXml
         file.write to_stream.string
       end
     end
+    alias :save :write_to
 
     def to_stream
       Zip::OutputStream.write_buffer do |io|
