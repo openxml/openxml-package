@@ -1,3 +1,3 @@
-class OpenXmlPackage
-  VERSION = "0.0.3"
+module OpenXmlPackage
+  VERSION = "0.1.0.beta1"
 end

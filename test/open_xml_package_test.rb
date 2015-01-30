@@ -2,23 +2,17 @@ require "test_helper"
 require "fileutils"
 require "set"
 
-
 class OpenXmlPackageTest < ActiveSupport::TestCase
   attr_reader :package, :temp_file
   
   
   
   context "#add_part" do
-    should "accept a path and content" do
-      package = OpenXmlPackage.new
-      package.add_part "PATH", "CONTENT"
-      assert_equal 1, package.parts.count
-    end
-    
-    should "accept a part that responds to :path and :read" do
-      package = OpenXmlPackage.new
-      package.add_part OpenXmlPackage::Part.new("PATH", "CONTENT")
-      assert_equal 1, package.parts.count
+    should "accept a path and a part" do
+      package = OpenXml::Package.new
+      assert_difference "package.parts.count", +1 do
+        package.add_part "PATH", OpenXml::Part.new
+      end
     end
   end
   
@@ -32,14 +26,15 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
     
     context "Given a simple part" do
       setup do
-        @package = OpenXmlPackage.new
-        package.add_part "content/document.xml", document_content
+        @package = OpenXml::Package.new
+        package.add_part "content/document.xml", OpenXml::Parts::UnparsedPart.new(document_content)
       end
       
       should "write a valid zip file with the expected parts" do
         package.write_to temp_file
         assert File.exists?(temp_file), "Expected the file #{temp_file.inspect} to have been created"
-        assert_equal %w{content/document.xml}, Zip::File.open(temp_file).entries.map(&:name)
+        assert_equal %w{[Content_Types].xml _rels/.rels content/document.xml},
+          Zip::File.open(temp_file).entries.map(&:name)
       end
     end
   end
@@ -69,7 +64,7 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
       
       context ".open" do
         setup do
-          @package = OpenXmlPackage.open(temp_file)
+          @package = OpenXml::Package.open(temp_file)
         end
         
         teardown do
@@ -77,7 +72,7 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
         end
         
         should "discover the expected parts" do
-          assert_equal @expected_contents, package.parts.map(&:path).to_set
+          assert_equal @expected_contents, package.parts.keys.to_set
         end
         
         should "read their content on-demand" do
@@ -87,15 +82,46 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
       
       context ".from_stream" do
         setup do
-          @package = OpenXmlPackage.from_stream(File.open(temp_file, "rb", &:read))
+          @package = OpenXml::Package.from_stream(File.open(temp_file, "rb", &:read))
         end
         
         should "also discover the expected parts" do
-          assert_equal @expected_contents, package.parts.map(&:path).to_set
+          assert_equal @expected_contents, package.parts.keys.to_set
         end
         
         should "read their content" do
           assert_equal web_settings_content, package.get_part("word/webSettings.xml").content
+        end
+      end
+      
+      context "ContentTypes" do
+        setup do
+          @package = OpenXml::Package.open(temp_file)
+        end
+        
+        teardown do
+          package.close
+        end
+        
+        should "be parsed" do
+          assert_equal %w{jpeg png rels xml}, package.content_types.defaults.keys.sort
+          assert_equal "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml",
+            package.content_types.overrides["/word/document.xml"]
+        end
+      end
+      
+      context "Rels" do
+        setup do
+          @package = OpenXml::Package.open(temp_file)
+        end
+        
+        teardown do
+          package.close
+        end
+        
+        should "be parsed" do
+          assert_equal %w{docProps/core.xml docProps/app.xml word/document.xml docProps/thumbnail.jpeg},
+            package.rels.map(&:target)
         end
       end
     end
