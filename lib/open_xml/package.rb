@@ -16,11 +16,11 @@ module OpenXml
       def content_types_presets
         @content_types_presets ||= OpenXml::ContentTypesPresets.new
       end
-      
+
       def content_types(&block)
         content_types_presets.instance_eval &block
       end
-      
+
       def open(path)
         if block_given?
           Zip::File.open(path) do |zipfile|
@@ -33,7 +33,7 @@ module OpenXml
 
       def from_stream(stream)
         stream = StringIO.new(stream) if stream.is_a?(String)
-        
+
         # Hack: Zip::Entry.read_c_dir_entry initializes
         # a new Zip::Entry by calling `io.path`. Zip::Entry
         # uses this to open the original zipfile; but in
@@ -41,7 +41,7 @@ module OpenXml
         def stream.path
           self
         end
-        
+
         zipfile = ::Zip::File.new("", true, true)
         zipfile.read_from_stream(stream)
         new(zipfile)
@@ -53,7 +53,7 @@ module OpenXml
     def initialize(zipfile=nil)
       @zipfile = zipfile
       @parts = {}
-      
+
       if zipfile
         read_zipfile!
       else

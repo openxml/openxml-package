@@ -3,7 +3,7 @@ require "zip"
 module Zip
   class InputStream
   protected
-    
+
     # The problem in RubyZip 1.1.0 is that we only call `seek`
     # when `io` is a File. We need to move the cursor to the
     # right position when `io` is a StringIO as well.
@@ -12,6 +12,6 @@ module Zip
       io.seek(offset, ::IO::SEEK_SET)
       io
     end
-    
+
   end
 end
