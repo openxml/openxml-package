@@ -7,9 +7,10 @@ end
 
 require "rails"
 require "rails/test_help"
-require "turn"
 require "pry"
 require "rr"
 require "shoulda/context"
+require "minitest/reporters/turn_reporter"
+MiniTest::Reporters.use! Minitest::Reporters::TurnReporter.new
 
 require "open_xml_package"
