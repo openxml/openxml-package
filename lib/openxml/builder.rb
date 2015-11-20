@@ -21,7 +21,7 @@ module OpenXml
 
     def method_missing(tag_name, *args)
       new_element = Ox::Element.new(tag_name)
-      attributes = args.extract_options!
+      attributes = extract_options!(args)
       attributes.each do |key, value|
         new_element[key] = value
       end
@@ -39,6 +39,16 @@ module OpenXml
       end
 
       @current << new_element
+    end
+
+  private
+
+    def extract_options!(args)
+      if args.last.is_a?(Hash) && args.last.instance_of?(Hash)
+        args.pop
+      else
+        {}
+      end
     end
 
   end
