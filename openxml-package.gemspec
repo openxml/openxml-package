@@ -8,10 +8,11 @@ Gem::Specification.new do |spec|
   spec.version       = OpenXmlPackage::VERSION
   spec.authors       = ["Bob Lail"]
   spec.email         = ["bob.lailfamily@gmail.com"]
+
   spec.summary       = %q{A Ruby implementation of OpenXmlPackage}
   spec.description   = %q{A Ruby implementation of OpenXmlPackage}
-  spec.homepage      = ""
   spec.license       = "MIT"
+  spec.homepage      = "https://github.com/openxml/openxml-package"
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
