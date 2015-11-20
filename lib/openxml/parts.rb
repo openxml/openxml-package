@@ -1,4 +1,4 @@
-require "open_xml/part"
+require "openxml/part"
 
 module OpenXml
   module Parts

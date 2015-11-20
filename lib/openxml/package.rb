@@ -1,9 +1,9 @@
-require "open_xml_package/version"
-require "open_xml/content_types_presets"
-require "open_xml/rubyzip_fix"
-require "open_xml/errors"
-require "open_xml/types"
-require "open_xml/parts"
+require "openxml-package/version"
+require "openxml/content_types_presets"
+require "openxml/rubyzip_fix"
+require "openxml/errors"
+require "openxml/types"
+require "openxml/parts"
 require "zip"
 
 module OpenXml

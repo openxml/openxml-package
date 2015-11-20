@@ -13,4 +13,4 @@ require "shoulda/context"
 require "minitest/reporters/turn_reporter"
 MiniTest::Reporters.use! Minitest::Reporters::TurnReporter.new
 
-require "open_xml_package"
+require "openxml/package"

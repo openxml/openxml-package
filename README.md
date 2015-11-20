@@ -2,14 +2,14 @@
 
 A Ruby implementation of [DocumentFormat.OpenXml.Packaging.OpenXmlPackage](http://msdn.microsoft.com/en-us/library/documentformat.openxml.packaging.openxmlpackage_members(v=office.14).aspx) from Microsoft's Open XML SDK.
 
-The base class for [Rocx::Package](https://github.com/genebot/rocx/blob/master/lib/rocx/package.rb), [Xlsx::Package](https://github.com/concordia-publishing-house/xlsx/blob/master/lib/xlsx/package.rb), and [Pptx::Package](https://github.com/concordia-publishing-house/pptx/blob/master/lib/pptx/package.rb).
+The base class for [Rocx::Package](https://github.com/openxml/openxml-docx/blob/master/lib/openxml-docx/package.rb), [Xlsx::Package](https://github.com/openxml/openxml-xlsx/blob/master/lib/openxml-xlsx/package.rb), and [Pptx::Package](https://github.com/openxml/openxml-pptx/blob/master/lib/openxml-pptx/package.rb).
 
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'open_xml_package'
+    gem 'openxml-package'
 
 And then execute:
 
@@ -17,7 +17,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install open_xml_package
+    $ gem install openxml-package
 
 
 
@@ -53,7 +53,7 @@ end
 For example, a very simple Microsoft Word document can be defined as follows:
 
 ```ruby
-require "open_xml/package"
+require "openxml/package"
 
 module Rocx
   class Package < OpenXml::Package
@@ -107,7 +107,7 @@ Is used to identify links within the package
 
 ## Contributing
 
-1. Fork it ( https://github.com/concordia-publishing-house/open_xml_package/fork )
+1. Fork it ( https://github.com/openxml/openxml-package/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

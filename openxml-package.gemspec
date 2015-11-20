@@ -1,13 +1,13 @@
 # coding: utf-8
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "open_xml_package/version"
+require "openxml-package/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "open_xml_package"
+  spec.name          = "openxml-package"
   spec.version       = OpenXmlPackage::VERSION
   spec.authors       = ["Bob Lail"]
-  spec.email         = ["bob.lail@cph.org"]
+  spec.email         = ["bob.lailfamily@gmail.com"]
   spec.summary       = %q{A Ruby implementation of OpenXmlPackage}
   spec.description   = %q{A Ruby implementation of OpenXmlPackage}
   spec.homepage      = ""

@@ -1,5 +1,5 @@
 require "nokogiri"
-require "open_xml/builder"
+require "openxml/builder"
 
 module OpenXml
   class Part
