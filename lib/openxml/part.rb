@@ -1,16 +1,14 @@
-require "nokogiri"
 require "openxml/builder"
 
 module OpenXml
   class Part
-    include ::Nokogiri
 
-    def build_xml
-      OpenXml::Builder.new { |xml| yield xml }.to_xml
+    def build_xml(options={})
+      OpenXml::Builder.new(options) { |xml| yield xml }.to_xml
     end
 
     def build_standalone_xml(&block)
-      "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" + build_xml(&block)
+      build_xml({ standalone: :yes }, &block)
     end
 
     def read
