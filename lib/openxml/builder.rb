@@ -4,6 +4,7 @@
 #
 # This class mimics the XML Builder DSL.
 require "ox"
+require "openxml/builder/document"
 require "openxml/builder/element"
 require "openxml/builder/namespace"
 
@@ -18,13 +19,13 @@ module OpenXml
       }.merge(options)
       @options[:with_xml] = !!@options[:with_xml] || @options[:standalone] == :yes
 
-      @document = Ox::Document.new({version: "1.0"}.merge(@options))
+      @document = OpenXml::Builder::Document.new({version: "1.0"}.merge(@options))
       @parent = @document
       yield self if block_given?
     end
 
     def to_s
-      Ox.dump @document, @options
+      Ox.dump @document.__getobj__, @options
     end
     alias :to_xml :to_s
 
