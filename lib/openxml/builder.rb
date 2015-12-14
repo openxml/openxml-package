@@ -5,7 +5,6 @@
 # This class mimics the XML Builder DSL.
 require "ox"
 require "openxml/builder/element"
-require "openxml/builder/namespace"
 
 module OpenXml
   class Builder
@@ -28,39 +27,19 @@ module OpenXml
     end
     alias :to_xml :to_s
 
-    # Adapted from Nokogiri's builder.rb
     def [](ns)
-      if @parent != @document
-        @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
-      end
-      return self if @ns
-
-      @parent.ancestors.each do |a|
-        next if a == @document
-        @ns = a.namespace_definitions.find { |x| x.prefix == ns.to_s }
-        return self if @ns
-      end
-
-      @ns = { :pending => ns.to_s }
+      @ns = ns.to_sym if ns
       return self
     end
 
     def method_missing(tag_name, *args)
       new_element = OpenXml::Builder::Element.new(tag_name)
-      new_element.parent = @parent
       attributes = extract_options!(args)
       attributes.each do |key, value|
         new_element[key] = value
       end
 
-      # Adapted from Nokogiri's builder.rb
-      if @ns.is_a? OpenXml::Builder::Namespace
-        new_element.namespace = @ns
-      elsif @ns.is_a? Hash
-        new_element.namespace = new_element.namespace_definitions.find { |x| x.prefix == @ns[:pending] }
-        raise ArgumentError, "Namespace #{@ns[:pending]} has not been defined" if new_element.namespace.nil?
-      end
-
+      new_element.namespace = @ns
       @ns = nil
 
       if block_given?
