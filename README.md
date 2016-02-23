@@ -2,7 +2,7 @@
 
 A Ruby implementation of [DocumentFormat.OpenXml.Packaging.OpenXmlPackage](http://msdn.microsoft.com/en-us/library/documentformat.openxml.packaging.openxmlpackage_members(v=office.14).aspx) from Microsoft's Open XML SDK.
 
-The base class for [Rocx::Package](https://github.com/openxml/openxml-docx/blob/master/lib/openxml-docx/package.rb), [Xlsx::Package](https://github.com/openxml/openxml-xlsx/blob/master/lib/openxml-xlsx/package.rb), and [Pptx::Package](https://github.com/openxml/openxml-pptx/blob/master/lib/openxml-pptx/package.rb).
+The base class for [Docx::Package](https://github.com/openxml/openxml-docx/blob/master/lib/openxml/docx/package.rb), [Xlsx::Package](https://github.com/openxml/openxml-xlsx/blob/master/lib/openxml/xlsx/package.rb), and [Pptx::Package](https://github.com/openxml/openxml-pptx).
 
 
 ## Installation
