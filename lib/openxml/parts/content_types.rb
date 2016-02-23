@@ -1,3 +1,5 @@
+require "nokogiri"
+
 module OpenXml
   module Parts
     class ContentTypes < OpenXml::Part
@@ -9,7 +11,7 @@ module OpenXml
       }.freeze
 
       def self.parse(xml)
-        document = Nokogiri(xml)
+        document = Nokogiri::XML(xml)
         self.new.tap do |part|
           document.css("Default").each do |default|
             part.add_default default["Extension"], default["ContentType"]
