@@ -4,7 +4,7 @@ module OpenXml
   class Part
 
     def build_xml(options={})
-      OpenXml::Builder.new(options) { |xml| yield xml }.to_xml
+      OpenXml::Builder.new(options) { |xml| yield xml }
     end
 
     def build_standalone_xml(&block)
@@ -12,7 +12,7 @@ module OpenXml
     end
 
     def read
-      strip_whitespace to_xml
+      strip_whitespace to_xml.to_s
     end
     alias :content :read
 
