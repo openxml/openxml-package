@@ -2,7 +2,7 @@ require "test_helper"
 require "fileutils"
 require "set"
 
-class OpenXmlPartTest < ActiveSupport::TestCase
+class PartTest < ActiveSupport::TestCase
   attr_reader :part, :builder
 
 
