@@ -8,22 +8,16 @@ module OpenXml
     end
 
     def build_standalone_xml(&block)
-      build_xml({ standalone: :yes }, &block)
+      build_xml(standalone: :yes, &block)
     end
 
     def read
-      strip_whitespace to_xml.to_s
+      to_xml.to_s
     end
     alias :content :read
 
     def to_xml
       raise NotImplementedError
-    end
-
-  protected
-
-    def strip_whitespace(xml)
-      xml.lines.map(&:strip).join
     end
 
   end

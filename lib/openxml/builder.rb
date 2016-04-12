@@ -11,19 +11,24 @@ module OpenXml
     attr_reader :parent
 
     def initialize(options={})
-      @options = {
-        with_xml: true,
-        encoding: "utf-8"
-      }.merge(options)
-      @options[:with_xml] = !!@options[:with_xml] || @options[:standalone] == :yes
+      @to_s_options = { with_xml: true }
 
-      @document = Ox::Document.new({version: "1.0"}.merge(@options))
+      @document = Ox::Document.new(
+        encoding: "utf-8",
+        version: "1.0",
+        standalone: options[:standalone])
       @parent = @document
       yield self if block_given?
     end
 
-    def to_s
-      Ox.dump @document, @options
+    def to_s(args={})
+      options = @to_s_options
+
+      # Unless we would like to debug the files,
+      # don't add whitespace during generation.
+      options = options.merge(indent: -1) unless args[:debug]
+
+      Ox.dump(@document, options).strip
     end
     alias :to_xml :to_s
 
