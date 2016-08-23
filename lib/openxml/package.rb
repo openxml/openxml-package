@@ -54,11 +54,8 @@ module OpenXml
       @zipfile = zipfile
       @parts = {}
 
-      if zipfile
-        read_zipfile!
-      else
-        set_defaults
-      end
+      set_defaults
+      read_zipfile! if zipfile
     end
 
 
