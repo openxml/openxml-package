@@ -125,6 +125,19 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
         end
       end
     end
+
+    context "Given a document with an external hyperlink" do
+      context ".open" do
+        should "parse the TargetMode attribute of the Relationship element" do
+          path = expand_path "support/external_hyperlink.docx"
+          OpenXml::Package.open(path) do |package|
+            part = package.parts["word/_rels/document.xml.rels"]
+            relationship = part.find { |r| r.target == "http://example.com" }
+            assert_equal relationship.target_mode, 'External'
+          end
+        end
+      end
+    end
   end
 
 
