@@ -9,7 +9,7 @@ module OpenXml
         document = Nokogiri(xml)
         self.new.tap do |part|
           document.css("Relationship").each do |rel|
-            part.add_relationship rel["Type"], rel["Target"], rel["Id"]
+            part.add_relationship rel["Type"], rel["Target"], rel["Id"], rel["TargetMode"]
           end
         end
       end
@@ -17,12 +17,12 @@ module OpenXml
       def initialize(defaults=[])
         @relationships = []
         Array(defaults).each do |default|
-          add_relationship(*default.values_at("Type", "Target", "Id"))
+          add_relationship(*default.values_at("Type", "Target", "Id", "TargetMode"))
         end
       end
 
-      def add_relationship(type, target, id=nil)
-        Relationship.new(type, target, id).tap do |relationship|
+      def add_relationship(type, target, id=nil, target_mode=nil)
+        Relationship.new(type, target, id, target_mode).tap do |relationship|
           relationships.push relationship
         end
       end
@@ -35,7 +35,9 @@ module OpenXml
         build_standalone_xml do |xml|
           xml.Relationships(xmlns: "http://schemas.openxmlformats.org/package/2006/relationships") do
             relationships.each do |rel|
-              xml.Relationship("Id" => rel.id, "Type" => rel.type, "Target" => rel.target)
+              attributes = { "Id" => rel.id, "Type" => rel.type, "Target" => rel.target }
+              attributes["TargetMode"] = rel.target_mode if rel.target_mode
+              xml.Relationship(attributes)
             end
           end
         end
@@ -43,9 +45,9 @@ module OpenXml
 
 
 
-      class Relationship < Struct.new(:type, :target, :id)
-        def initialize(type, target, id=nil)
-          super type, target, id || "R#{SecureRandom.hex}"
+      class Relationship < Struct.new(:type, :target, :id, :target_mode)
+        def initialize(type, target, id=nil, target_mode=nil)
+          super type, target, id || "R#{SecureRandom.hex}", target_mode
         end
       end
 
