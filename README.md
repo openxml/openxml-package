@@ -40,7 +40,7 @@ package.write_to "~/Desktop/output.zip"
 You can read the contents of an Open XML Package:
 
 ```ruby
-OpenXmlPackage.open("~/Desktop/output.zip") do |package|
+OpenXml::Package.open("~/Desktop/output.zip") do |package|
   package.parts.keys # => ["content/document.xml", "media/image.png"]
 end
 ```
