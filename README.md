@@ -1,8 +1,12 @@
 # OpenXml::Package
 
-A Ruby implementation of [DocumentFormat.OpenXml.Packaging.OpenXmlPackage](http://msdn.microsoft.com/en-us/library/documentformat.openxml.packaging.openxmlpackage_members(v=office.14).aspx) from Microsoft's Open XML SDK.
+[![Gem Version](https://badge.fury.io/rb/openxml-package.svg)](https://rubygems.org/gems/openxml-package)
+[![Code Climate](https://codeclimate.com/github/openxml/openxml-package.svg)](https://codeclimate.com/github/openxml/openxml-package)
+[![Build Status](https://travis-ci.org/openxml/openxml-package.svg)](https://travis-ci.org/openxml/openxml-package)
 
-The base class for [Docx::Package](https://github.com/openxml/openxml-docx/blob/master/lib/openxml/docx/package.rb), [Xlsx::Package](https://github.com/openxml/openxml-xlsx/blob/master/lib/openxml/xlsx/package.rb), and [Pptx::Package](https://github.com/openxml/openxml-pptx).
+A Ruby implementation of [DocumentFormat.OpenXml.Packaging.OpenXmlPackage](https://msdn.microsoft.com/en-us/library/documentformat.openxml.packaging.openxmlpackage_members.aspx) from Microsoft's Open XML SDK.
+
+The base class for [OpenXml::Docx::Package](https://github.com/openxml/openxml-docx/blob/master/lib/openxml/docx/package.rb), [OpenXml::Xlsx::Package](https://github.com/openxml/openxml-xlsx/blob/master/lib/openxml/xlsx/package.rb), and [OpenXml::Pptx::Package](https://github.com/openxml/openxml-pptx/blob/master/lib/openxml/xlsx/package.rb).
 
 
 ## Installation

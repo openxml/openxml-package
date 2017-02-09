@@ -9,14 +9,14 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Bob Lail"]
   spec.email         = ["bob.lailfamily@gmail.com"]
 
-  spec.summary       = %q{A Ruby implementation of OpenXmlPackage}
-  spec.description   = %q{A Ruby implementation of OpenXmlPackage}
-  spec.license       = "MIT"
+  spec.summary       = %q{A Ruby implementation of OpenXmlPackage from Microsoft's Open XML SDK}
+  spec.description   = %q{A Ruby implementation of OpenXmlPackage from Microsoft's Open XML SDK}
   spec.homepage      = "https://github.com/openxml/openxml-package"
+  spec.license       = "MIT"
 
-  spec.files         = `git ls-files -z`.split("\x0")
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  spec.bindir        = "exe"
+  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
   spec.add_dependency "rubyzip", "~> 1.1.0"
