@@ -1,4 +1,5 @@
 require "securerandom"
+require "nokogiri"
 
 module OpenXml
   module Parts
@@ -6,7 +7,7 @@ module OpenXml
       include Enumerable
 
       def self.parse(xml)
-        document = Nokogiri(xml)
+        document = Nokogiri::XML(xml)
         self.new.tap do |part|
           document.css("Relationship").each do |rel|
             part.add_relationship rel["Type"], rel["Target"], rel["Id"], rel["TargetMode"]
