@@ -14,7 +14,7 @@ module OpenXml
       @to_s_options = { with_xml: true }
 
       @document = Ox::Document.new(
-        encoding: "utf-8",
+        encoding: "UTF-8",
         version: "1.0",
         standalone: options[:standalone])
       @parent = @document

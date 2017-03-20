@@ -101,6 +101,7 @@ module OpenXml
 
     def read_zipfile!
       zipfile.entries.each do |entry|
+        next if entry.directory?
         path, part = entry.name, Parts::UnparsedPart.new(entry)
         add_part path, case path
         when "[Content_Types].xml" then @content_types = Parts::ContentTypes.parse(part.content)
