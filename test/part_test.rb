@@ -61,7 +61,7 @@ private
 
   def basic_xml
     <<-STR.strip
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <document>
   <child attribute="value" other_attr="other value"/>
   <child attribute="value" other_attr="other value"/>
@@ -71,7 +71,7 @@ private
 
   def namespaced_xml
     <<-STR.strip
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <document xmlns:ns="some:namespace:uri">
   <ns:child attribute="value" other_attr="other value"/>
   <ns:child attribute="value" other_attr="other value"/>
@@ -81,7 +81,7 @@ private
 
   def standalone_xml
     <<-STR.strip
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <document>
   <child attribute="value" other_attr="other value"/>
 </document>
