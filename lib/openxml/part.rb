@@ -17,7 +17,7 @@ module OpenXml
     alias :content :read
 
     def to_xml
-      raise NotImplementedError
+      raise NotImplementedError, "#{self.class} needs to implements to_xml"
     end
 
   end
