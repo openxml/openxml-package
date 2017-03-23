@@ -1,6 +1,12 @@
 require "test_helper"
 
 class RelsTest < ActiveSupport::TestCase
+  context "with no defaults" do
+    should "be empty" do
+      assert OpenXml::Parts::Rels.new.empty?
+    end
+  end
+
   context "#to_xml" do
     context "given a document with an external hyperlink" do
       should "write the TargetMode attribute of the Relationship element" do

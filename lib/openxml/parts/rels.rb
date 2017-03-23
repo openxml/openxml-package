@@ -32,6 +32,10 @@ module OpenXml
         relationships.each(&block)
       end
 
+      def empty?
+        relationships.empty?
+      end
+
       def to_xml
         build_standalone_xml do |xml|
           xml.Relationships(xmlns: "http://schemas.openxmlformats.org/package/2006/relationships") do
@@ -43,8 +47,6 @@ module OpenXml
           end
         end
       end
-
-
 
       class Relationship < Struct.new(:type, :target, :id, :target_mode)
         def initialize(type, target, id=nil, target_mode=nil)
