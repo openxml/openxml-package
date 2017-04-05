@@ -115,7 +115,7 @@ module OpenXml
 
     def set_defaults
       presets = self.class.content_types_presets
-      @content_types = Parts::ContentTypes.new(presets.defaults, presets.overrides)
+      @content_types = Parts::ContentTypes.new(presets.defaults.dup, presets.overrides.dup)
       add_part "[Content_Types].xml", content_types
 
       @rels = Parts::Rels.new
