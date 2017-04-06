@@ -1,4 +1,5 @@
 require "securerandom"
+require "openxml/relationship"
 require "nokogiri"
 
 module OpenXml
@@ -23,9 +24,13 @@ module OpenXml
       end
 
       def add_relationship(type, target, id=nil, target_mode=nil)
-        Relationship.new(type, target, id, target_mode).tap do |relationship|
+        OpenXml::Elements::Relationship.new(type, target, id, target_mode).tap do |relationship|
           relationships.push relationship
         end
+      end
+
+      def push(relationship)
+        relationships.push relationship
       end
 
       def each(&block)
@@ -45,12 +50,6 @@ module OpenXml
               xml.Relationship(attributes)
             end
           end
-        end
-      end
-
-      class Relationship < Struct.new(:type, :target, :id, :target_mode)
-        def initialize(type, target, id=nil, target_mode=nil)
-          super type, target, id || "R#{SecureRandom.hex}", target_mode
         end
       end
 
