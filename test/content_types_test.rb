@@ -1,11 +1,11 @@
 require "test_helper"
 
-class ContentTypesTest < ActiveSupport::TestCase
+class ContentTypesTest < Minitest::Test
   attr_reader :content_types
 
   WORDPROCESSING_DOCUMENT_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"
 
-  setup do
+  def setup
     @content_types = OpenXml::Parts::ContentTypes.new(
       {"xml" => OpenXml::Types::XML, "rels" => OpenXml::Types::RELATIONSHIPS},
       {"word/document.xml" => WORDPROCESSING_DOCUMENT_TYPE})

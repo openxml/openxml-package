@@ -2,7 +2,7 @@ require "test_helper"
 require "fileutils"
 require "set"
 
-class PartTest < ActiveSupport::TestCase
+class PartTest < Minitest::Test
   attr_reader :part, :builder
 
 

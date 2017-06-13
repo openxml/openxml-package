@@ -1,9 +1,9 @@
 require "test_helper"
 
-class ElementTest < ActiveSupport::TestCase
+class ElementTest < Minitest::Test
   attr_reader :element
 
-  setup do
+  def setup
     @element = OpenXml::Builder::Element.new("tag")
   end
 

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RelsTest < ActiveSupport::TestCase
+class RelsTest < Minitest::Test
   context "with no defaults" do
     should "be empty" do
       assert OpenXml::Parts::Rels.new.empty?

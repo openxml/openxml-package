@@ -2,7 +2,7 @@ require "test_helper"
 require "fileutils"
 require "set"
 
-class OpenXmlPackageTest < ActiveSupport::TestCase
+class OpenXmlPackageTest < Minitest::Test
   attr_reader :package, :temp_file
 
 
@@ -10,9 +10,9 @@ class OpenXmlPackageTest < ActiveSupport::TestCase
   context "#add_part" do
     should "accept a path and a part" do
       package = OpenXml::Package.new
-      assert_difference "package.parts.count", +1 do
-        package.add_part "PATH", OpenXml::Part.new
-      end
+      parts = package.parts.count
+      package.add_part "PATH", OpenXml::Part.new
+      assert_equal parts + 1, package.parts.count
     end
   end
 
