@@ -55,7 +55,7 @@ module OpenXml
       props = properties.keys.map(&method(:send)).compact
       return if props.none?(&:render?)
 
-      xml[namespace].public_send(properties_tag) {
+      (namespace.nil? ? xml : xml[namespace]).public_send(properties_tag) {
         props.each { |prop| prop.to_xml(xml) }
       }
     end
