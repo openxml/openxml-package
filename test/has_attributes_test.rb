@@ -25,12 +25,12 @@ class HasAttributesTest < Minitest::Test
 
     context "in a with_namespace block" do
       should "use the provided namespace" do
-        element = Class.new {
+        element = Class.new do
           include OpenXml::HasAttributes
           with_namespace :a_namespace do
             attribute :an_attribute
           end
-        }
+        end
         assert_equal :a_namespace, element.attributes[:an_attribute][1]
       end
     end
@@ -75,14 +75,14 @@ class HasAttributesTest < Minitest::Test
 private
 
   def class_with_attribute(attr_name, **args)
-    Class.new {
+    Class.new do
       include OpenXml::HasAttributes
       attribute attr_name, **args
 
       def name
         "element"
       end
-    }
+    end
   end
 
 end

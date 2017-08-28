@@ -6,7 +6,7 @@ class HasChildrenTest < Minitest::Test
 
   context "with HasChildren included" do
     setup do
-      base_class = Class.new {
+      base_class = Class.new do
         def to_xml(xml)
           yield xml if block_given?
           xml
@@ -15,11 +15,11 @@ class HasChildrenTest < Minitest::Test
         def render?
           false
         end
-      }
+      end
 
-      @element = Class.new(base_class) {
+      @element = Class.new(base_class) do
         include OpenXml::HasChildren
-      }.new
+      end.new
     end
 
     should "append children using the shovel operator" do
