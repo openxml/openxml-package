@@ -26,5 +26,6 @@ module OpenXml
     def render?
       super || children.any?
     end
+
   end
 end
