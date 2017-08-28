@@ -9,7 +9,7 @@ module OpenXml
 
       def attribute(name, expects: nil, one_of: nil, in_range: nil, displays_as: nil, namespace: nil, matches: nil, deprecated: false)
         bad_names = %w{ tag name namespace properties_tag }
-        raise ArgumentError if bad_names.member? name
+        raise ArgumentError if bad_names.member? name.to_s
 
         attr_reader name
 
