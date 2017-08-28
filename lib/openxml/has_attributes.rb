@@ -6,9 +6,10 @@ module OpenXml
     end
 
     module ClassMethods
+
       def attribute(name, expects: nil, one_of: nil, in_range: nil, displays_as: nil, namespace: nil, matches: nil, deprecated: false)
-        bad_names = %w(tag name namespace properties_tag)
-        raise ArgumentError if bad_names.member? name
+        bad_names = %w{ tag name namespace properties_tag }
+        raise ArgumentError if bad_names.member? name.to_s
 
         attr_reader name
 
@@ -32,6 +33,7 @@ module OpenXml
         @attribute_namespace = namespace
         instance_eval(&block)
       end
+
     end
 
     def render?
@@ -49,7 +51,7 @@ module OpenXml
         display, namespace = options
         value = send(name)
         attr_name = "#{namespace}:#{display}"
-        attr_name = "#{display}" if namespace.nil?
+        attr_name = display.to_s if namespace.nil?
         attrs[attr_name] = value unless value.nil?
       end
     end
@@ -110,7 +112,7 @@ module OpenXml
     end
 
     def on_or_off(value)
-      valid_in? value, [:on, :off]
+      valid_in? value, %i{ on off }
     end
 
     def valid_in?(value, list)

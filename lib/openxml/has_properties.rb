@@ -15,30 +15,23 @@ module OpenXml
         attr_reader name
 
         properties[name] = (as || name).to_s
+        class_name = properties[name].split("_").map(&:capitalize).join
 
         class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}=(value)
-          property_key = "#{name}".to_sym
-          class_name = properties[property_key].split("_").map(&:capitalize).join
-          prop_module = Object.const_get class.name.split("::")[0...-2].push("Properties").join("::")
-          prop_class = prop_module.const_get class_name
-          instance_variable_set "@#{name}", prop_class.new(value)
+          instance_variable_set "@#{name}", Properties::#{class_name}.new(value)
         end
         CODE
       end
 
       def property(name, as: nil)
         properties[name] = (as || name).to_s
+        class_name = properties[name].split("_").map(&:capitalize).join
 
         class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}
-          property_key = "#{name}".to_sym
-          class_name = properties[property_key].split("_").map(&:capitalize).join
-          prop_module = Object.const_get class.name.split("::")[0...-2].push("Properties").join("::")
-          prop_class = prop_module.const_get class_name
-
           if instance_variable_get("@#{name}").nil?
-            instance_variable_set "@#{name}", prop_class.new
+            instance_variable_set "@#{name}", Properties::#{class_name}.new
           end
 
           instance_variable_get "@#{name}"
@@ -62,7 +55,7 @@ module OpenXml
       props = properties.keys.map(&method(:send)).compact
       return if props.none?(&:render?)
 
-      xml[namespace].public_send(properties_tag) {
+      (namespace.nil? ? xml : xml[namespace]).public_send(properties_tag) {
         props.each { |prop| prop.to_xml(xml) }
       }
     end
