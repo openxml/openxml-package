@@ -106,6 +106,24 @@ class HasPropertiesTest < Minitest::Test
         end
       end
     end
+
+    should "allow attributes to be set on the properties tag" do
+      element = Class.new(OpenXml::Element) do
+        include OpenXml::HasProperties
+        tag :p
+        namespace :w
+
+        properties_attribute :bold, displays_as: :b, expects: :boolean
+      end.new
+      element.bold = true
+
+      builder = Nokogiri::XML::Builder.new
+      builder.document("xmlns:w" => "http://microsoft.com") do |xml|
+        element.to_xml(xml)
+      end
+
+      assert_match /w:pPr b="true"/, builder.to_xml
+    end
   end
 
 end
