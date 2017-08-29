@@ -7,7 +7,7 @@ module OpenXml
 
     module ClassMethods
 
-      def attribute(name, expects: nil, one_of: nil, in_range: nil, displays_as: nil, namespace: nil, matches: nil, deprecated: false)
+      def attribute(name, expects: nil, one_of: nil, in_range: nil, displays_as: nil, namespace: nil, matches: nil, validation: nil, deprecated: false)
         bad_names = %w{ tag name namespace properties_tag }
         raise ArgumentError if bad_names.member? name.to_s
 
@@ -18,6 +18,7 @@ module OpenXml
           send(expects, value) unless expects.nil?
           matches?(value, matches) unless matches.nil?
           in_range?(value, in_range) unless in_range.nil?
+          validation.call(value) if validation.respond_to? :call
           instance_variable_set "@#{name}", value
         end
 
