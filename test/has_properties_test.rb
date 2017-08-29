@@ -52,11 +52,18 @@ class HasPropertiesTest < Minitest::Test
     context "#to_xml" do
       setup do
         base_class = Class.new do
-          attr_reader :namespace
+          def self.namespace
+            :w
+          end
+
+          def namespace
+            self.class.namespace
+          end
 
           def to_xml(xml)
-            yield xml if block_given?
-            xml
+            xml.public_send(tag, "xmlns:w" => "http://microsoft.com") do
+              yield xml if block_given?
+            end
           end
         end
 
@@ -64,8 +71,12 @@ class HasPropertiesTest < Minitest::Test
           include OpenXml::HasProperties
           value_property :value_property
 
-          def tag
+          def self.tag
             "p"
+          end
+
+          def tag
+            self.class.tag
           end
         end
       end
@@ -77,7 +88,7 @@ class HasPropertiesTest < Minitest::Test
         builder = Nokogiri::XML::Builder.new
         an_element.to_xml(builder)
 
-        assert %r{<pPr/>} =~ builder.to_xml
+        assert_match %r{<w:pPr/?>}, builder.to_xml
       end
 
       should "call to_xml on each property" do
@@ -95,6 +106,72 @@ class HasPropertiesTest < Minitest::Test
         end
       end
     end
+
+    should "allow attributes to be set on the properties tag" do
+      element = Class.new(OpenXml::Element) do
+        include OpenXml::HasProperties
+        tag :p
+        namespace :w
+
+        properties_attribute :bold, displays_as: :b, expects: :boolean
+      end.new
+      element.bold = true
+
+      builder = Nokogiri::XML::Builder.new
+      builder.document("xmlns:w" => "http://microsoft.com") do |xml|
+        element.to_xml(xml)
+      end
+
+      assert_match /w:pPr b="true"/, builder.to_xml
+    end
+
+    should "allow properties to be rendered as direct children" do
+      element = Class.new(OpenXml::Element) do
+        include OpenXml::HasProperties
+        tag :bodyPr
+        namespace :a
+
+        properties_are_children
+
+        value_property :value_property
+      end.new
+      element.value_property = "A Value"
+
+      builder = Nokogiri::XML::Builder.new
+      builder.document("xmlns:a" => "http://microsoft.com") do |xml|
+        element.to_xml(xml)
+      end
+
+      actual = builder.to_xml
+      refute_match /a:bodyPrPr/, actual
+      assert_match /a:valueProp val="A Value"/, actual
+    end
+
+    should "enforce exclusivity of exclusive properties" do
+      element = Class.new(OpenXml::Element) do
+        include OpenXml::HasProperties
+
+        namespace :a
+        tag :p
+
+        value_property :prop_one, as: :value_property
+        value_property :prop_two, as: :value_property
+
+        mutually_exclusive :prop_one, :prop_two
+      end.new
+      element.prop_one = "A Value"
+
+      builder = Nokogiri::XML::Builder.new
+      builder.document("xmlns:a" => "http://microsoft.com") do |xml|
+        element.to_xml(xml)
+      end
+
+      assert_match /a:valueProp val="A Value"/, builder.to_xml
+
+      assert_raises ArgumentError do
+        element.prop_two = "Another Value"
+      end
+    end
   end
 
 end
@@ -106,14 +183,30 @@ module OpenXml
 
     class SomeProperty
 
+      def tag
+        :someProp
+      end
+
+      def attributes
+        {}
+      end
+
       def to_xml(builder)
         yield builder if block_given?
-        builder
+        builder.public_send(tag, attributes)
       end
 
     end
 
     class ValueProperty < SomeProperty
+
+      def tag
+        :valueProp
+      end
+
+      def attributes
+        { val: @value }
+      end
 
       def initialize(value)
         raise ArgumentError unless value
