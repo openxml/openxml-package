@@ -65,6 +65,19 @@ module OpenXml
         end
       end
 
+      def mutually_exclusive(*property_names)
+        property_names.each do |property_name|
+          alias_method :"__set_#{property_name}", :"#{property_name}="
+          define_method "#{property_name}=" do |value|
+            message = "Only one of #{property_names.join(", ")} can be set at a time"
+            other_properties = (property_names - [ property_name ])
+            values_nil = other_properties.map { |name| public_send(name).nil? } + [ value.nil? ]
+            raise ArgumentError, message unless values_nil.one?(&:!)
+            public_send(:"__set_#{property_name}", value)
+          end
+        end
+      end
+
       def properties_element
         this = self
         @properties_element ||= Class.new(OpenXml::Element) do

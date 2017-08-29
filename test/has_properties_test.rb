@@ -146,6 +146,32 @@ class HasPropertiesTest < Minitest::Test
       refute_match /a:bodyPrPr/, actual
       assert_match /a:valueProp val="A Value"/, actual
     end
+
+    should "enforce exclusivity of exclusive properties" do
+      element = Class.new(OpenXml::Element) do
+        include OpenXml::HasProperties
+
+        namespace :a
+        tag :p
+
+        value_property :prop_one, as: :value_property
+        value_property :prop_two, as: :value_property
+
+        mutually_exclusive :prop_one, :prop_two
+      end.new
+      element.prop_one = "A Value"
+
+      builder = Nokogiri::XML::Builder.new
+      builder.document("xmlns:a" => "http://microsoft.com") do |xml|
+        element.to_xml(xml)
+      end
+
+      assert_match /a:valueProp val="A Value"/, builder.to_xml
+
+      assert_raises ArgumentError do
+        element.prop_two = "Another Value"
+      end
+    end
   end
 
 end
