@@ -12,6 +12,16 @@ module OpenXml
         @properties_tag
       end
 
+      def omit_properties_tag(*args)
+        @omit_properties_tag = args.first if args.any?
+        @omit_properties_tag
+      end
+      alias omit_properties_tag? omit_properties_tag
+
+      def properties_are_children
+        omit_properties_tag(true)
+      end
+
       def value_property(name, as: nil)
         attr_reader name
 
@@ -88,8 +98,12 @@ module OpenXml
       props = properties.keys.map(&method(:send)).compact
       return if props.none?(&:render?) && properties_attributes.none?
 
-      properties_element.to_xml(xml) do
+      if omit_properties_tag?
         props.each { |prop| prop.to_xml(xml) }
+      else
+        properties_element.to_xml(xml) do
+          props.each { |prop| prop.to_xml(xml) }
+        end
       end
     end
 
@@ -105,6 +119,10 @@ module OpenXml
 
     def default_properties_tag
       :"#{tag}Pr"
+    end
+
+    def omit_properties_tag?
+      self.class.omit_properties_tag?
     end
 
   end
