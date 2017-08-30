@@ -6,6 +6,7 @@ module OpenXml
     end
 
     module ClassMethods
+
       def properties_tag(*args)
         @properties_tag = args.first if args.any?
         @properties_tag
@@ -42,6 +43,38 @@ module OpenXml
       def properties
         @properties ||= {}
       end
+
+      def properties_attribute(name, **args)
+        properties_element.attribute name, **args
+        define_method "#{name}=" do |value|
+          properties_element.public_send :"#{name}=", value
+        end
+
+        define_method name.to_s do
+          properties_element.public_send name.to_sym
+        end
+      end
+
+      def properties_element
+        this = self
+        @properties_element ||= Class.new(OpenXml::Element) do
+          tag :"#{this.properties_tag || this.default_properties_tag}"
+          namespace :"#{this.namespace}"
+        end
+      end
+
+      def default_properties_tag
+        :"#{tag}Pr"
+      end
+
+    end
+
+    def properties_element
+      @properties_element ||= self.class.properties_element.new
+    end
+
+    def properties_attributes
+      properties_element.attributes
     end
 
     def to_xml(xml)
@@ -53,11 +86,11 @@ module OpenXml
 
     def property_xml(xml)
       props = properties.keys.map(&method(:send)).compact
-      return if props.none?(&:render?)
+      return if props.none?(&:render?) && properties_attributes.none?
 
-      (namespace.nil? ? xml : xml[namespace]).public_send(properties_tag) {
+      properties_element.to_xml(xml) do
         props.each { |prop| prop.to_xml(xml) }
-      }
+      end
     end
 
   private
