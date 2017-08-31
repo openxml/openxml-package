@@ -13,9 +13,8 @@ module OpenXml
     module InstanceMethods
 
       def property_xml(xml)
-        props = properties.keys.map(&method(:send)).compact
-        return if props.none?(&:render?) && properties_attributes.none?
-
+        props = active_properties
+        return unless render_properties? props
         props.each { |prop| prop.to_xml(xml) }
       end
 
