@@ -35,6 +35,7 @@ class HasPropertiesTest < Minitest::Test
           include OpenXml::HasProperties
 
           property :complex_property
+          property :polymorphic_property
         end
       end
 
@@ -47,6 +48,12 @@ class HasPropertiesTest < Minitest::Test
         an_element = element.new
         refute an_element.instance_variable_get("@complex_property")
         assert an_element.complex_property.is_a?(OpenXml::Properties::ComplexProperty)
+      end
+
+      should "allow a parameter to be passed in to initialize on access" do
+        an_element = element.new
+        an_element.polymorphic_property(:tagTwo)
+        assert_equal an_element.polymorphic_property.tag, :tagTwo
       end
     end
 
@@ -127,4 +134,14 @@ class HasPropertiesTest < Minitest::Test
     end
   end
 
+end
+
+module OpenXml
+  module Properties
+
+    class PolymorphicProperty < BaseProperty
+      tag_is_one_of %i{ tagOne tagTwo }
+    end
+
+  end
 end

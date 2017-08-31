@@ -30,9 +30,9 @@ module OpenXml
         class_name = properties[name].split("_").map(&:capitalize).join
 
         class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def #{name}
+        def #{name}(*args)
           if instance_variable_get("@#{name}").nil?
-            instance_variable_set "@#{name}", Properties::#{class_name}.new
+            instance_variable_set "@#{name}", Properties::#{class_name}.new(*args)
           end
 
           instance_variable_get "@#{name}"
