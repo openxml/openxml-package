@@ -7,8 +7,13 @@ module OpenXml
       end
 
       def to_xml(xml)
-        return apply_namespace(xml).public_send(tag) if value == true
-        super
+        if value == true
+          apply_namespace(xml).public_send(tag) do
+            yield xml if block_given?
+          end
+        else
+          super
+        end
       end
 
     end
