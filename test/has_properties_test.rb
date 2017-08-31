@@ -57,6 +57,33 @@ class HasPropertiesTest < Minitest::Test
       end
     end
 
+    context ".property_choice" do
+      setup do
+        @element = Class.new do
+          include OpenXml::HasProperties
+
+          property_choice do
+            value_property :property_one, as: :boolean_property
+            property :property_two, as: :complex_property
+          end
+        end
+      end
+
+      should "raise an exception when attempting to use more than one property in the group" do
+        an_element = element.new
+        assert_raises OpenXml::HasProperties::ChoiceGroupUniqueError do
+          an_element.property_one = true
+          an_element.property_two
+        end
+
+        another_element = element.new
+        assert_raises OpenXml::HasProperties::ChoiceGroupUniqueError do
+          another_element.property_two
+          another_element.property_one = true
+        end
+      end
+    end
+
     context "#to_xml" do
       setup do
         base_class = Class.new do
