@@ -77,6 +77,11 @@ module OpenXml
       properties_element.attributes
     end
 
+    def render?
+      return true unless defined?(super)
+      render_properties? || super
+    end
+
     def to_xml(xml)
       super(xml) do
         property_xml(xml)
@@ -85,8 +90,8 @@ module OpenXml
     end
 
     def property_xml(xml)
-      props = properties.keys.map(&method(:send)).compact
-      return if props.none?(&:render?) && properties_attributes.none?
+      props = active_properties
+      return unless render_properties? props
 
       properties_element.to_xml(xml) do
         props.each { |prop| prop.to_xml(xml) }
@@ -97,6 +102,14 @@ module OpenXml
 
     def properties
       self.class.properties
+    end
+
+    def active_properties
+      properties.keys.map { |property| instance_variable_get("@#{property}") }.compact
+    end
+
+    def render_properties?(properties=active_properties)
+      properties.any?(&:render?) || properties_attributes.any?
     end
 
     def properties_tag

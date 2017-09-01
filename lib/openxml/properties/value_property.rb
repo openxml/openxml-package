@@ -21,7 +21,9 @@ module OpenXml
       end
 
       def to_xml(xml)
-        apply_namespace(xml).public_send tag, :"#{value_attribute}" => value
+        apply_namespace(xml).public_send(tag, :"#{value_attribute}" => value) do
+          yield xml if block_given?
+        end
       end
 
     private
