@@ -2,7 +2,8 @@ module OpenXml
   module HasChildren
     attr_reader :children
 
-    def initialize
+    def initialize(*)
+      super
       @children = []
     end
 
