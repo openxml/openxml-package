@@ -1,6 +1,8 @@
 module OpenXml
   module HasProperties
 
+    class ChoiceGroupUniqueError < RuntimeError; end
+
     def self.included(base)
       base.extend ClassMethods
     end
@@ -18,8 +20,12 @@ module OpenXml
         properties[name] = (as || name).to_s
         class_name = properties[name].split("_").map(&:capitalize).join
 
+        (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
+
         class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}=(value)
+          group_index = #{@current_group}
+          ensure_unique_in_group(:#{name}, group_index) unless group_index.nil?
           instance_variable_set "@#{name}", Properties::#{class_name}.new(value)
         end
         CODE
@@ -29,10 +35,14 @@ module OpenXml
         properties[name] = (as || name).to_s
         class_name = properties[name].split("_").map(&:capitalize).join
 
+        (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
+
         class_eval <<-CODE, __FILE__, __LINE__ + 1
-        def #{name}
+        def #{name}(*args)
           if instance_variable_get("@#{name}").nil?
-            instance_variable_set "@#{name}", Properties::#{class_name}.new
+            group_index = #{@current_group}
+            ensure_unique_in_group(:#{name}, group_index) unless group_index.nil?
+            instance_variable_set "@#{name}", Properties::#{class_name}.new(*args)
           end
 
           instance_variable_get "@#{name}"
@@ -40,8 +50,18 @@ module OpenXml
         CODE
       end
 
+      def property_choice
+        @current_group = choice_groups.length
+        yield
+        @current_group = nil
+      end
+
       def properties
         @properties ||= {}
+      end
+
+      def choice_groups
+        @choice_groups ||= []
       end
 
       def properties_attribute(name, **args)
@@ -118,6 +138,17 @@ module OpenXml
 
     def default_properties_tag
       :"#{tag}Pr"
+    end
+
+    def choice_groups
+      self.class.choice_groups
+    end
+
+    def ensure_unique_in_group(name, group_index)
+      other_names = (choice_groups[group_index] - [name])
+      unique = other_names.all? { |other_name| instance_variable_get("@#{other_name}").nil? }
+      message = "Property #{name} cannot also be set with #{other_names.join(", ")}."
+      raise ChoiceGroupUniqueError, message unless unique
     end
 
   end

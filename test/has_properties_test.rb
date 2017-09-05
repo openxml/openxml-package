@@ -35,6 +35,7 @@ class HasPropertiesTest < Minitest::Test
           include OpenXml::HasProperties
 
           property :complex_property
+          property :polymorphic_property
         end
       end
 
@@ -47,6 +48,39 @@ class HasPropertiesTest < Minitest::Test
         an_element = element.new
         refute an_element.instance_variable_get("@complex_property")
         assert an_element.complex_property.is_a?(OpenXml::Properties::ComplexProperty)
+      end
+
+      should "allow a parameter to be passed in to initialize on access" do
+        an_element = element.new
+        an_element.polymorphic_property(:tagTwo)
+        assert_equal an_element.polymorphic_property.tag, :tagTwo
+      end
+    end
+
+    context ".property_choice" do
+      setup do
+        @element = Class.new do
+          include OpenXml::HasProperties
+
+          property_choice do
+            value_property :property_one, as: :boolean_property
+            property :property_two, as: :complex_property
+          end
+        end
+      end
+
+      should "raise an exception when attempting to use more than one property in the group" do
+        an_element = element.new
+        assert_raises OpenXml::HasProperties::ChoiceGroupUniqueError do
+          an_element.property_one = true
+          an_element.property_two
+        end
+
+        another_element = element.new
+        assert_raises OpenXml::HasProperties::ChoiceGroupUniqueError do
+          another_element.property_two
+          another_element.property_one = true
+        end
       end
     end
 
@@ -127,4 +161,14 @@ class HasPropertiesTest < Minitest::Test
     end
   end
 
+end
+
+module OpenXml
+  module Properties
+
+    class PolymorphicProperty < BaseProperty
+      tag_is_one_of %i{ tagOne tagTwo }
+    end
+
+  end
 end
