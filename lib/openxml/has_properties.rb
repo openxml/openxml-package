@@ -14,11 +14,12 @@ module OpenXml
         @properties_tag
       end
 
-      def value_property(name, as: nil)
+      def value_property(name, as: nil, klass: nil)
         attr_reader name
 
         properties[name] = (as || name).to_s
-        class_name = properties[name].split("_").map(&:capitalize).join
+        class_name = klass.name unless klass.nil?
+        class_name ||= "Properties::#{properties[name].split("_").map(&:capitalize).join}"
 
         (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
 
@@ -26,14 +27,15 @@ module OpenXml
         def #{name}=(value)
           group_index = #{@current_group}
           ensure_unique_in_group(:#{name}, group_index) unless group_index.nil?
-          instance_variable_set "@#{name}", Properties::#{class_name}.new(value)
+          instance_variable_set "@#{name}", #{class_name}.new(value)
         end
         CODE
       end
 
-      def property(name, as: nil)
+      def property(name, as: nil, klass: nil)
         properties[name] = (as || name).to_s
-        class_name = properties[name].split("_").map(&:capitalize).join
+        class_name = klass.name unless klass.nil?
+        class_name ||= "Properties::#{properties[name].split("_").map(&:capitalize).join}"
 
         (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
 
@@ -42,7 +44,7 @@ module OpenXml
           if instance_variable_get("@#{name}").nil?
             group_index = #{@current_group}
             ensure_unique_in_group(:#{name}, group_index) unless group_index.nil?
-            instance_variable_set "@#{name}", Properties::#{class_name}.new(*args)
+            instance_variable_set "@#{name}", #{class_name}.new(*args)
           end
 
           instance_variable_get "@#{name}"
