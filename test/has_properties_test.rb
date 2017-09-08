@@ -120,10 +120,7 @@ class HasPropertiesTest < Minitest::Test
         an_element = element.new
         an_element.boolean_property = true
 
-        builder = Nokogiri::XML::Builder.new
-        an_element.to_xml(builder)
-
-        assert_match /<w:pPr>/, builder.to_xml
+        assert_match /<w:pPr>/, xml(an_element)
       end
 
       should "call to_xml on each property" do
@@ -152,13 +149,17 @@ class HasPropertiesTest < Minitest::Test
       end.new
       element.bold = true
 
-      builder = Nokogiri::XML::Builder.new
-      builder.document("xmlns:w" => "http://microsoft.com") do |xml|
-        element.to_xml(xml)
+      assert_match /w:pPr b="true"/, xml(element)
       end
 
-      assert_match /w:pPr b="true"/, builder.to_xml
+private
+
+  def xml(element)
+    builder = Nokogiri::XML::Builder.new
+    builder.document("xmlns:w" => "http://microsoft.com") do |xml|
+      element.to_xml(xml)
     end
+    builder.to_xml
   end
 
 end
