@@ -18,8 +18,9 @@ module OpenXml
         attr_reader name
 
         properties[name] = (as || name).to_s
+        classified_name = properties[name].split("_").map(&:capitalize).join
         class_name = klass.name unless klass.nil?
-        class_name ||= "Properties::#{properties[name].split("_").map(&:capitalize).join}"
+        class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
         (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
 
@@ -34,8 +35,9 @@ module OpenXml
 
       def property(name, as: nil, klass: nil)
         properties[name] = (as || name).to_s
+        classified_name = properties[name].split("_").map(&:capitalize).join
         class_name = klass.name unless klass.nil?
-        class_name ||= "Properties::#{properties[name].split("_").map(&:capitalize).join}"
+        class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
         (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
 
