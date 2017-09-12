@@ -120,10 +120,7 @@ class HasPropertiesTest < Minitest::Test
         an_element = element.new
         an_element.boolean_property = true
 
-        builder = Nokogiri::XML::Builder.new
-        an_element.to_xml(builder)
-
-        assert_match /<w:pPr>/, builder.to_xml
+        assert_match /<w:pPr>/, xml(an_element)
       end
 
       should "call to_xml on each property" do
@@ -152,13 +149,114 @@ class HasPropertiesTest < Minitest::Test
       end.new
       element.bold = true
 
-      builder = Nokogiri::XML::Builder.new
-      builder.document("xmlns:w" => "http://microsoft.com") do |xml|
-        element.to_xml(xml)
+      assert_match /w:pPr b="true"/, xml(element)
+    end
+  end
+
+  context "a subclass of a class that has included HasProperties" do
+    should "inherit the properties of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        value_property :boolean_property
+      end
+      child = Class.new(parent)
+
+      assert_equal %i{ boolean_property }, child.new.send(:properties).keys
+    end
+
+    should "not modify the properties of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        value_property :boolean_property
+      end
+      child = Class.new(parent) do
+        value_property :another_bool, as: :boolean_property
       end
 
-      assert_match /w:pPr b="true"/, builder.to_xml
+      assert_equal %i{ boolean_property }, parent.properties.keys
+      assert_equal %i{ another_bool boolean_property }, child.new.send(:properties).keys.sort
     end
+
+    should "inherit the accessors of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        value_property :boolean_property
+      end
+      child = Class.new(parent).new
+
+      assert child.respond_to?(:boolean_property=), "Should respond to property assignment"
+      assert child.respond_to?(:boolean_property), "Should respond to property accessor"
+    end
+
+    should "inherit the choice groups of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        property_choice do
+          value_property :boolean_property
+        end
+      end
+      child = Class.new(parent).new
+
+      assert_equal 1, child.send(:choice_groups).count
+      assert_equal %i{ boolean_property }, child.send(:choice_groups).first
+    end
+
+    should "not modify the choice groups of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        property_choice do
+          value_property :boolean_property
+        end
+      end
+      child = Class.new(parent) do
+        property_choice do
+          value_property :another_boolean, as: :boolean_property
+        end
+      end
+
+      assert_equal 1, parent.choice_groups.count
+      assert_equal %i{ boolean_property }, parent.choice_groups.first
+      assert_equal 2, child.choice_groups.count
+      assert_equal %i{ boolean_property }, child.choice_groups.first
+      assert_equal %i{ another_boolean }, child.choice_groups.last
+    end
+
+    should "inherit the attributes of the properties tag of its superclass" do
+      parent = Class.new(OpenXml::Element) do
+        include OpenXml::HasProperties
+        properties_attribute :an_attribute
+      end
+      child = Class.new(parent) do
+        tag :p
+      end
+
+      assert_equal %i{ an_attribute }, child.new.properties_attributes.keys
+    end
+
+    should "not modify the attributes of the properties tag of its superclass" do
+      parent = Class.new(OpenXml::Element) do
+        include OpenXml::HasProperties
+        tag :q
+        properties_attribute :an_attribute
+      end
+      child = Class.new(parent) do
+        tag :p
+        properties_attribute :another_attribute
+      end
+
+      assert_equal %i{ an_attribute }, parent.new.properties_attributes.keys
+      assert_equal %i{ an_attribute another_attribute }, child.new.properties_attributes.keys.sort
+    end
+  end
+
+private
+
+  def xml(element)
+    builder = Nokogiri::XML::Builder.new
+    builder.document("xmlns:w" => "http://microsoft.com") do |xml|
+      element.to_xml(xml)
+    end
+    builder.to_xml
   end
 
 end

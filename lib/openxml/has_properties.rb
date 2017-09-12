@@ -18,14 +18,15 @@ module OpenXml
         attr_reader name
 
         properties[name] = (as || name).to_s
+        classified_name = properties[name].split("_").map(&:capitalize).join
         class_name = klass.name unless klass.nil?
-        class_name ||= "Properties::#{properties[name].split("_").map(&:capitalize).join}"
+        class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
         (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
 
         class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}=(value)
-          group_index = #{@current_group}
+          group_index = #{@current_group.inspect}
           ensure_unique_in_group(:#{name}, group_index) unless group_index.nil?
           instance_variable_set "@#{name}", #{class_name}.new(value)
         end
@@ -34,15 +35,16 @@ module OpenXml
 
       def property(name, as: nil, klass: nil)
         properties[name] = (as || name).to_s
+        classified_name = properties[name].split("_").map(&:capitalize).join
         class_name = klass.name unless klass.nil?
-        class_name ||= "Properties::#{properties[name].split("_").map(&:capitalize).join}"
+        class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
         (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
 
         class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}(*args)
           if instance_variable_get("@#{name}").nil?
-            group_index = #{@current_group}
+            group_index = #{@current_group.inspect}
             ensure_unique_in_group(:#{name}, group_index) unless group_index.nil?
             instance_variable_set "@#{name}", #{class_name}.new(*args)
           end
@@ -59,11 +61,23 @@ module OpenXml
       end
 
       def properties
-        @properties ||= {}
+        @properties ||= begin
+          if superclass.respond_to?(:properties)
+            Hash[superclass.properties.map { |key, klass_name| [ key, klass_name.dup ] }]
+          else
+            {}
+          end
+        end
       end
 
       def choice_groups
-        @choice_groups ||= []
+        @choice_groups ||= begin
+          if superclass.respond_to?(:choice_groups)
+            superclass.choice_groups.map(&:dup)
+          else
+            []
+          end
+        end
       end
 
       def properties_attribute(name, **args)
@@ -79,7 +93,8 @@ module OpenXml
 
       def properties_element
         this = self
-        @properties_element ||= Class.new(OpenXml::Element) do
+        parent_klass = superclass.respond_to?(:properties_element) ? superclass.properties_element : OpenXml::Element
+        @properties_element ||= Class.new(parent_klass) do
           tag :"#{this.properties_tag || this.default_properties_tag}"
           namespace :"#{this.namespace}"
         end

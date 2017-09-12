@@ -72,6 +72,30 @@ class HasAttributesTest < Minitest::Test
     end
   end
 
+  context "a subclass of a class with attributes" do
+    should "inherit its superclass' attributes" do
+      element = Class.new(class_with_attribute(:an_attribute)).new
+      assert_equal %i{ an_attribute }, element.attributes.keys
+    end
+
+    should "not modify the attributes of its superclass" do
+      parent = class_with_attribute(:an_attribute)
+      element = Class.new(parent) do
+        attribute :another_attribute
+      end
+
+      assert_equal %i{ an_attribute another_attribute }, element.new.attributes.keys
+      assert_equal %i{ an_attribute }, parent.new.attributes.keys
+    end
+
+    should "inherit the accessors of its superclass" do
+      element = Class.new(class_with_attribute(:an_attribute)).new
+
+      assert element.respond_to? :an_attribute, "Should respond to read accessor"
+      assert element.respond_to? :an_attribute=, "Should respond to write accessor"
+    end
+  end
+
 private
 
   def class_with_attribute(attr_name, **args)

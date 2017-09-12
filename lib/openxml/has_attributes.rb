@@ -27,7 +27,15 @@ module OpenXml
       end
 
       def attributes
-        @attributes ||= {}
+        @attributes ||= begin
+          if superclass.respond_to?(:attributes)
+            Hash[superclass.attributes.map { |name, attribute|
+              [ name, attribute.dup ]
+            }]
+          else
+            {}
+          end
+        end
       end
 
       def with_namespace(namespace, &block)
