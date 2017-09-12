@@ -32,7 +32,7 @@ class OpenXmlPackageTest < Minitest::Test
 
       should "write a valid zip file with the expected parts" do
         package.write_to temp_file
-        assert File.exists?(temp_file), "Expected the file #{temp_file.inspect} to have been created"
+        assert File.exist?(temp_file), "Expected the file #{temp_file.inspect} to have been created"
         assert_equal %w{[Content_Types].xml _rels/.rels content/document.xml},
           Zip::File.open(temp_file).entries.map(&:name)
       end

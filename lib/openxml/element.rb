@@ -6,21 +6,20 @@ module OpenXml
 
     class << self
       attr_reader :property_name
-      attr_reader :namespace
 
       def tag(*args)
         @tag = args.first if args.any?
-        @tag
+        @tag ||= nil
       end
 
       def name(*args)
         @property_name = args.first if args.any?
-        @name
+        @property_name ||= nil
       end
 
       def namespace(*args)
         @namespace = args.first if args.any?
-        @namespace
+        @namespace ||= nil
       end
 
     end
