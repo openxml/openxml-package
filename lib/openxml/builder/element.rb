@@ -8,7 +8,7 @@ module OpenXml
       end
 
       def []=(attribute, value)
-        namespace_def = attribute.downcase.to_s.match /^xmlns(?:\:(?<prefix>.*))?$/
+        namespace_def = attribute.downcase.to_s.match(/^xmlns(?:\:(?<prefix>.*))?$/)
         namespaces << namespace_def[:prefix].to_sym if namespace_def && namespace_def[:prefix]
         super
       end

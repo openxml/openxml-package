@@ -13,6 +13,7 @@ module OpenXml
     def initialize(options={})
       @to_s_options = { with_xml: true }
 
+      @ns = nil
       @document = Ox::Document.new(
         encoding: "UTF-8",
         version: "1.0",

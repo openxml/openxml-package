@@ -13,7 +13,7 @@ class RelsTest < Minitest::Test
         path = File.expand_path "../support/external_hyperlink.docx", __FILE__
         OpenXml::Package.open(path) do |package|
           part = package.parts["word/_rels/document.xml.rels"]
-          assert_match /<Relationship Id=".+" Target="http:\/\/example.com" TargetMode="External"/, part.to_xml.to_s
+          assert_match(/<Relationship Id=".+" Target="http:\/\/example.com" TargetMode="External"/, part.to_xml.to_s)
         end
       end
     end

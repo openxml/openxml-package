@@ -11,7 +11,7 @@ module OpenXml
 
       def properties_tag(*args)
         @properties_tag = args.first if args.any?
-        @properties_tag
+        @properties_tag ||= nil
       end
 
       def value_property(name, as: nil, klass: nil)
@@ -22,7 +22,7 @@ module OpenXml
         class_name = klass.name unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
-        (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
+        (choice_groups[current_group] ||= []).push(name) unless current_group.nil?
 
         class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}=(value)
@@ -39,7 +39,7 @@ module OpenXml
         class_name = klass.name unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
-        (choice_groups[@current_group] ||= []).push(name) unless @current_group.nil?
+        (choice_groups[current_group] ||= []).push(name) unless current_group.nil?
 
         class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}(*args)
@@ -58,6 +58,10 @@ module OpenXml
         @current_group = choice_groups.length
         yield
         @current_group = nil
+      end
+
+      def current_group
+        @current_group ||= nil
       end
 
       def properties
@@ -163,7 +167,7 @@ module OpenXml
 
     def ensure_unique_in_group(name, group_index)
       other_names = (choice_groups[group_index] - [name])
-      unique = other_names.all? { |other_name| instance_variable_get("@#{other_name}").nil? }
+      unique = other_names.all? { |other_name| instance_variable_defined?("@#{other_name}") }
       message = "Property #{name} cannot also be set with #{other_names.join(", ")}."
       raise ChoiceGroupUniqueError, message unless unique
     end

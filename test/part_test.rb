@@ -14,11 +14,11 @@ class PartTest < Minitest::Test
 
     context "Given simple xml for one part" do
       setup do
-        @builder = @part.build_xml do |xml|
-          xml.document do |xml|
-            2.times { xml.child(attribute: "value", other_attr: "other value") }
+        @builder = @part.build_xml { |xml|
+          xml.document do |inner_xml|
+            2.times { inner_xml.child(attribute: "value", other_attr: "other value") }
           end
-        end
+        }
       end
 
       should "build the expected xml" do

@@ -26,7 +26,7 @@ class ContentTypesTest < Minitest::Test
 
   context "Given a path with an unrecognized extension" do
     should "be nil" do
-      assert_equal nil, content_types.of("img/screenshot.jpg")
+      assert_nil content_types.of("img/screenshot.jpg")
     end
   end
 

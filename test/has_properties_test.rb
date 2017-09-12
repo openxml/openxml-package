@@ -120,7 +120,7 @@ class HasPropertiesTest < Minitest::Test
         an_element = element.new
         an_element.boolean_property = true
 
-        assert_match /<w:pPr>/, xml(an_element)
+        assert_match(/<w:pPr>/, xml(an_element))
       end
 
       should "call to_xml on each property" do
@@ -149,7 +149,7 @@ class HasPropertiesTest < Minitest::Test
       end.new
       element.bold = true
 
-      assert_match /w:pPr b="true"/, xml(element)
+      assert_match(/w:pPr b="true"/, xml(element))
     end
   end
 

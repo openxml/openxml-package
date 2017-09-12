@@ -18,7 +18,7 @@ module OpenXml
       end
 
       def content_types(&block)
-        content_types_presets.instance_eval &block
+        content_types_presets.instance_eval(&block)
       end
 
       def open(path)

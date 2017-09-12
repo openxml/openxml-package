@@ -15,8 +15,8 @@ class ContainsPropertiesTest < Minitest::Test
     element.string_property = "A Value"
 
     rendered_xml = build(element)
-    refute_match /a:bodyPrPr/, rendered_xml
-    assert_match /a:stringProperty val="A Value"/, rendered_xml
+    refute_match(/a:bodyPrPr/, rendered_xml)
+    assert_match(/a:stringProperty val="A Value"/, rendered_xml)
   end
 
 private
