@@ -12,7 +12,8 @@ module OpenXml
           unless args.empty?
             @child_classes = args.map { |arg|
               prop_name = arg.to_s.split(/_/).map(&:capitalize).join # LazyCamelCase
-              Properties.const_get prop_name
+              const_name = (self.to_s.split(/::/)[0...-1] + [prop_name]).join("::")
+              Object.const_get const_name
             }
           end
 
