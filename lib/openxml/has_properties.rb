@@ -167,7 +167,7 @@ module OpenXml
 
     def ensure_unique_in_group(name, group_index)
       other_names = (choice_groups[group_index] - [name])
-      unique = other_names.all? { |other_name| instance_variable_defined?("@#{other_name}") }
+      unique = other_names.all? { |other_name| !instance_variable_defined?("@#{other_name}") }
       message = "Property #{name} cannot also be set with #{other_names.join(", ")}."
       raise ChoiceGroupUniqueError, message unless unique
     end
