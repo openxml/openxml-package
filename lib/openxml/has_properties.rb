@@ -14,7 +14,8 @@ module OpenXml
         @properties_tag ||= nil
       end
 
-      def value_property(name, as: nil, klass: nil)
+      def value_property(name, as: nil, klass: nil, required: false)
+        warn "[WARNING] `required` paramater is not yet implemented" if required
         attr_reader name
 
         properties[name] = (as || name).to_s
@@ -33,7 +34,8 @@ module OpenXml
         CODE
       end
 
-      def property(name, as: nil, klass: nil)
+      def property(name, as: nil, klass: nil, required: false)
+        warn "[WARNING] `required` parameter is not yet implemented" if required
         properties[name] = (as || name).to_s
         classified_name = properties[name].split("_").map(&:capitalize).join
         class_name = klass.name unless klass.nil?
