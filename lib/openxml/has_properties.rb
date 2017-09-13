@@ -56,7 +56,8 @@ module OpenXml
         CODE
       end
 
-      def property_choice
+      def property_choice(required: false)
+        warn "[WARNING] `required` parameter is not yet implemented" if required
         @current_group = choice_groups.length
         yield
         @current_group = nil
