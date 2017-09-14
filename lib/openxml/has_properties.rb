@@ -153,7 +153,9 @@ module OpenXml
     end
 
     def render_properties?(properties=active_properties)
-      properties.any?(&:render?) || properties_attributes.any?
+      properties.any?(&:render?) || properties_attributes.keys.any? do |key|
+        properties_element.instance_variable_defined?("@#{key}")
+      end
     end
 
     def properties_tag
