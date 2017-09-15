@@ -115,6 +115,11 @@ module OpenXml
       raise ArgumentError, message if !value.is_a?(String) || value.length.zero?
     end
 
+    def string_or_blank(value)
+      message = "Invalid #{name}: must be a string, even if the string is empty"
+      raise ArgumentError, message unless value.is_a?(String)
+    end
+
     def in_range?(value, range)
       message = "Invalid #{name}: must be a number between #{range.begin} and #{range.end}"
       raise ArgumentError, message unless range.include?(value.to_i)
