@@ -15,10 +15,10 @@ module OpenXml
       end
 
       def value_property(name, as: nil, klass: nil, required: false)
-        warn "[WARNING] `required` paramater is not yet implemented" if required
         attr_reader name
 
         properties[name] = (as || name).to_s
+        required_properties.push name if required
         classified_name = properties[name].split("_").map(&:capitalize).join
         class_name = klass.name unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
@@ -35,8 +35,8 @@ module OpenXml
       end
 
       def property(name, as: nil, klass: nil, required: false)
-        warn "[WARNING] `required` parameter is not yet implemented" if required
         properties[name] = (as || name).to_s
+        required_properties.push name if required
         classified_name = properties[name].split("_").map(&:capitalize).join
         class_name = klass.name unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
@@ -57,7 +57,7 @@ module OpenXml
       end
 
       def property_choice(required: false)
-        warn "[WARNING] `required` parameter is not yet implemented" if required
+        warn "[WARNING] `required` parameter is not yet implemented for property_choice" if required
         @current_group = choice_groups.length
         yield
         @current_group = nil
@@ -81,6 +81,16 @@ module OpenXml
         @choice_groups ||= begin
           if superclass.respond_to?(:choice_groups)
             superclass.choice_groups.map(&:dup)
+          else
+            []
+          end
+        end
+      end
+
+      def required_properties
+        @required_properties ||= begin
+          if superclass.respond_to?(:required_properties)
+            superclass.required_properties.dup
           else
             []
           end
@@ -142,6 +152,18 @@ module OpenXml
       end
     end
 
+    def build_required_properties
+      required_properties.each do |prop|
+        public_send(:"#{prop}=", default_property_value_for(prop)) if respond_to? :"#{prop}="
+        property_instance = public_send(:"#{prop}")
+        property_instance.build_required_properties if property_instance.respond_to?(:build_required_properties)
+      end
+    end
+
+    def default_property_value_for(_prop)
+      raise NotImplementedError
+    end
+
   private
 
     def properties
@@ -168,6 +190,10 @@ module OpenXml
 
     def choice_groups
       self.class.choice_groups
+    end
+
+    def required_properties
+      self.class.required_properties
     end
 
     def ensure_unique_in_group(name, group_index)

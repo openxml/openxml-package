@@ -177,6 +177,29 @@ class HasPropertiesTest < Minitest::Test
       assert_equal %i{ another_bool boolean_property }, child.new.send(:properties).keys.sort
     end
 
+    should "inherit the required properties of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        property :complex_property, required: true
+      end
+      child = Class.new(parent)
+
+      assert_equal %i{ complex_property }, child.new.send(:required_properties)
+    end
+
+    should "not modify the required properties of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        property :complex_property, required: true
+      end
+      child = Class.new(parent) do
+        property :another_one, as: :complex_property, required: true
+      end
+
+      assert_equal %i{ complex_property }, parent.required_properties
+      assert_equal %i{ another_one complex_property }, child.new.send(:required_properties).sort
+    end
+
     should "inherit the accessors of its superclass" do
       parent = Class.new do
         include OpenXml::HasProperties
@@ -249,6 +272,51 @@ class HasPropertiesTest < Minitest::Test
     end
   end
 
+  context "#build_required_properties" do
+    setup do
+      @element = Class.new do
+        include OpenXml::HasProperties
+        property :property_haver_property, required: true
+        value_property :boolean_property, required: true
+
+        def default_property_value_for(prop)
+          default_value_calls << prop
+          true
+        end
+
+        def default_value_calls
+          @default_value_calls ||= []
+        end
+      end
+    end
+
+    should "instantiate each required property" do
+      an_element = element.new
+      an_element.build_required_properties
+      assert an_element.instance_variable_defined?(:"@property_haver_property")
+      assert an_element.instance_variable_defined?(:"@boolean_property")
+    end
+
+    should "call #build_required_properties in turn on each required property" do
+      an_element = element.new
+      mock = MiniTest::Mock.new
+      mock.expect :build_required_properties, nil
+
+      OpenXml::Properties::PropertyHaverProperty.stub :new, mock do
+        an_element.build_required_properties
+      end
+
+      assert mock.verify
+    end
+
+    should "call #default_property_value_for with each required value property" do
+      an_element = element.new
+      assert_equal 0, an_element.default_value_calls.count, "Expected default_value_calls to be empty initially"
+      an_element.build_required_properties
+      assert_equal %i{ boolean_property }, an_element.default_value_calls
+    end
+  end
+
 private
 
   def xml(element)
@@ -266,6 +334,12 @@ module OpenXml
 
     class PolymorphicProperty < BaseProperty
       tag_is_one_of %i{ tagOne tagTwo }
+
+    end
+
+    class PropertyHaverProperty < ComplexProperty
+      include OpenXml::HasProperties
+
     end
 
   end
