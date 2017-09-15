@@ -20,7 +20,7 @@ module OpenXml
         properties[name] = (as || name).to_s
         required_properties.push name if required
         classified_name = properties[name].split("_").map(&:capitalize).join
-        class_name = klass.name unless klass.nil?
+        class_name = klass.to_s unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
         (choice_groups[current_group] ||= []).push(name) unless current_group.nil?
@@ -38,7 +38,7 @@ module OpenXml
         properties[name] = (as || name).to_s
         required_properties.push name if required
         classified_name = properties[name].split("_").map(&:capitalize).join
-        class_name = klass.name unless klass.nil?
+        class_name = klass.to_s unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
         (choice_groups[current_group] ||= []).push(name) unless current_group.nil?
