@@ -177,6 +177,29 @@ class HasPropertiesTest < Minitest::Test
       assert_equal %i{ another_bool boolean_property }, child.new.send(:properties).keys.sort
     end
 
+    should "inherit the required properties of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        property :complex_property, required: true
+      end
+      child = Class.new(parent)
+
+      assert_equal %i{ complex_property }, child.new.send(:required_properties).keys
+    end
+
+    should "not modify the required properties of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        property :complex_property, required: true
+      end
+      child = Class.new(parent) do
+        property :another_one, as: :complex_property, required: true
+      end
+
+      assert_equal %i{ complex_property }, parent.required_properties.keys
+      assert_equal %i{ another_one complex_property }, child.new.send(:required_properties).keys.sort
+    end
+
     should "inherit the accessors of its superclass" do
       parent = Class.new do
         include OpenXml::HasProperties
@@ -249,6 +272,28 @@ class HasPropertiesTest < Minitest::Test
     end
   end
 
+  context "#build_required_properties" do
+    setup do
+      @element = Class.new do
+        include OpenXml::HasProperties
+        property :property_haver_property, required: true
+        value_property :boolean_property, required: true, default_value: false
+
+      end
+    end
+
+    should "instantiate each required property" do
+      an_element = element.new
+      assert an_element.instance_variable_defined?(:"@property_haver_property")
+      assert an_element.instance_variable_defined?(:"@boolean_property")
+    end
+
+    should "set the specified default for value properties" do
+      an_element = element.new
+      assert_equal false, an_element.boolean_property.value
+    end
+  end
+
 private
 
   def xml(element)
@@ -266,6 +311,12 @@ module OpenXml
 
     class PolymorphicProperty < BaseProperty
       tag_is_one_of %i{ tagOne tagTwo }
+
+    end
+
+    class PropertyHaverProperty < ComplexProperty
+      include OpenXml::HasProperties
+
     end
 
   end

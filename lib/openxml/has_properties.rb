@@ -14,13 +14,13 @@ module OpenXml
         @properties_tag ||= nil
       end
 
-      def value_property(name, as: nil, klass: nil, required: false)
-        warn "[WARNING] `required` paramater is not yet implemented" if required
+      def value_property(name, as: nil, klass: nil, required: false, default_value: nil)
         attr_reader name
 
         properties[name] = (as || name).to_s
+        required_properties[name] = default_value if required
         classified_name = properties[name].split("_").map(&:capitalize).join
-        class_name = klass.name unless klass.nil?
+        class_name = klass.to_s unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
         (choice_groups[current_group] ||= []).push(name) unless current_group.nil?
@@ -35,10 +35,10 @@ module OpenXml
       end
 
       def property(name, as: nil, klass: nil, required: false)
-        warn "[WARNING] `required` parameter is not yet implemented" if required
         properties[name] = (as || name).to_s
+        required_properties[name] = true if required
         classified_name = properties[name].split("_").map(&:capitalize).join
-        class_name = klass.name unless klass.nil?
+        class_name = klass.to_s unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
 
         (choice_groups[current_group] ||= []).push(name) unless current_group.nil?
@@ -57,7 +57,7 @@ module OpenXml
       end
 
       def property_choice(required: false)
-        warn "[WARNING] `required` parameter is not yet implemented" if required
+        warn "[WARNING] `required` parameter is not yet implemented for property_choice" if required
         @current_group = choice_groups.length
         yield
         @current_group = nil
@@ -87,6 +87,16 @@ module OpenXml
         end
       end
 
+      def required_properties
+        @required_properties ||= begin
+          if superclass.respond_to?(:required_properties)
+            superclass.required_properties.dup
+          else
+            {}
+          end
+        end
+      end
+
       def properties_attribute(name, **args)
         properties_element.attribute name, **args
         define_method "#{name}=" do |value|
@@ -111,6 +121,11 @@ module OpenXml
         :"#{tag}Pr"
       end
 
+    end
+
+    def initialize(*_args)
+      super
+      build_required_properties
     end
 
     def properties_element
@@ -142,6 +157,13 @@ module OpenXml
       end
     end
 
+    def build_required_properties
+      required_properties.each do |prop, default_value|
+        public_send(:"#{prop}=", default_value) if respond_to? :"#{prop}="
+        public_send(:"#{prop}")
+      end
+    end
+
   private
 
     def properties
@@ -168,6 +190,10 @@ module OpenXml
 
     def choice_groups
       self.class.choice_groups
+    end
+
+    def required_properties
+      self.class.required_properties
     end
 
     def ensure_unique_in_group(name, group_index)

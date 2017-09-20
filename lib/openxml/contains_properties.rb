@@ -18,6 +18,10 @@ module OpenXml
         props.each { |prop| prop.to_xml(xml) }
       end
 
+      def properties_attributes
+        {}
+      end
+
     end
 
   end

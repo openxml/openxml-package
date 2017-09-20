@@ -8,7 +8,7 @@ module OpenXml
     module ClassMethods
 
       def attribute(name, expects: nil, one_of: nil, in_range: nil, displays_as: nil, namespace: nil, matches: nil, validation: nil, required: false, deprecated: false)
-        warn "[WARNING] `required` parameter is not yet implemented" if required
+        warn "[WARNING] `required` parameter is not yet implemented for attributes" if required
         bad_names = %w{ tag name namespace properties_tag }
         raise ArgumentError if bad_names.member? name.to_s
 
@@ -113,6 +113,11 @@ module OpenXml
     def string(value)
       message = "Invalid #{name}: must be a string"
       raise ArgumentError, message if !value.is_a?(String) || value.length.zero?
+    end
+
+    def string_or_blank(value)
+      message = "Invalid #{name}: must be a string, even if the string is empty"
+      raise ArgumentError, message unless value.is_a?(String)
     end
 
     def in_range?(value, range)
