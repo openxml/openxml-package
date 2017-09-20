@@ -184,7 +184,7 @@ class HasPropertiesTest < Minitest::Test
       end
       child = Class.new(parent)
 
-      assert_equal %i{ complex_property }, child.new.send(:required_properties)
+      assert_equal %i{ complex_property }, child.new.send(:required_properties).keys
     end
 
     should "not modify the required properties of its superclass" do
@@ -196,8 +196,8 @@ class HasPropertiesTest < Minitest::Test
         property :another_one, as: :complex_property, required: true
       end
 
-      assert_equal %i{ complex_property }, parent.required_properties
-      assert_equal %i{ another_one complex_property }, child.new.send(:required_properties).sort
+      assert_equal %i{ complex_property }, parent.required_properties.keys
+      assert_equal %i{ another_one complex_property }, child.new.send(:required_properties).keys.sort
     end
 
     should "inherit the accessors of its superclass" do
@@ -277,16 +277,8 @@ class HasPropertiesTest < Minitest::Test
       @element = Class.new do
         include OpenXml::HasProperties
         property :property_haver_property, required: true
-        value_property :boolean_property, required: true
+        value_property :boolean_property, required: true, default_value: false
 
-        def default_property_value_for(prop)
-          default_value_calls << prop
-          true
-        end
-
-        def default_value_calls
-          @default_value_calls ||= []
-        end
       end
     end
 
@@ -296,9 +288,9 @@ class HasPropertiesTest < Minitest::Test
       assert an_element.instance_variable_defined?(:"@boolean_property")
     end
 
-    should "call #default_property_value_for with each required value property" do
+    should "set the specified default for value properties" do
       an_element = element.new
-      assert_equal %i{ boolean_property }, an_element.default_value_calls
+      assert_equal false, an_element.boolean_property.value
     end
   end
 

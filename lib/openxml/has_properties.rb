@@ -14,11 +14,11 @@ module OpenXml
         @properties_tag ||= nil
       end
 
-      def value_property(name, as: nil, klass: nil, required: false)
+      def value_property(name, as: nil, klass: nil, required: false, default_value: nil)
         attr_reader name
 
         properties[name] = (as || name).to_s
-        required_properties.push name if required
+        required_properties[name] = default_value if required
         classified_name = properties[name].split("_").map(&:capitalize).join
         class_name = klass.to_s unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
@@ -36,7 +36,7 @@ module OpenXml
 
       def property(name, as: nil, klass: nil, required: false)
         properties[name] = (as || name).to_s
-        required_properties.push name if required
+        required_properties[name] = true if required
         classified_name = properties[name].split("_").map(&:capitalize).join
         class_name = klass.to_s unless klass.nil?
         class_name ||= (to_s.split("::")[0...-2] + ["Properties", classified_name]).join("::")
@@ -92,7 +92,7 @@ module OpenXml
           if superclass.respond_to?(:required_properties)
             superclass.required_properties.dup
           else
-            []
+            {}
           end
         end
       end
@@ -158,14 +158,10 @@ module OpenXml
     end
 
     def build_required_properties
-      required_properties.each do |prop|
-        public_send(:"#{prop}=", default_property_value_for(prop)) if respond_to? :"#{prop}="
+      required_properties.each do |prop, default_value|
+        public_send(:"#{prop}=", default_value) if respond_to? :"#{prop}="
         public_send(:"#{prop}")
       end
-    end
-
-    def default_property_value_for(_prop)
-      raise NotImplementedError
     end
 
   private
