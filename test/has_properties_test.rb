@@ -292,27 +292,12 @@ class HasPropertiesTest < Minitest::Test
 
     should "instantiate each required property" do
       an_element = element.new
-      an_element.build_required_properties
       assert an_element.instance_variable_defined?(:"@property_haver_property")
       assert an_element.instance_variable_defined?(:"@boolean_property")
     end
 
-    should "call #build_required_properties in turn on each required property" do
-      an_element = element.new
-      mock = MiniTest::Mock.new
-      mock.expect :build_required_properties, nil
-
-      OpenXml::Properties::PropertyHaverProperty.stub :new, mock do
-        an_element.build_required_properties
-      end
-
-      assert mock.verify
-    end
-
     should "call #default_property_value_for with each required value property" do
       an_element = element.new
-      assert_equal 0, an_element.default_value_calls.count, "Expected default_value_calls to be empty initially"
-      an_element.build_required_properties
       assert_equal %i{ boolean_property }, an_element.default_value_calls
     end
   end

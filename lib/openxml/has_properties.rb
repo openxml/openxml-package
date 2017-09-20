@@ -123,6 +123,11 @@ module OpenXml
 
     end
 
+    def initialize(*_args)
+      super
+      build_required_properties
+    end
+
     def properties_element
       @properties_element ||= self.class.properties_element.new
     end
@@ -155,8 +160,7 @@ module OpenXml
     def build_required_properties
       required_properties.each do |prop|
         public_send(:"#{prop}=", default_property_value_for(prop)) if respond_to? :"#{prop}="
-        property_instance = public_send(:"#{prop}")
-        property_instance.build_required_properties if property_instance.respond_to?(:build_required_properties)
+        public_send(:"#{prop}")
       end
     end
 
