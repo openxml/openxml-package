@@ -45,7 +45,7 @@ module OpenXml
 
         class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}(*args)
-          if instance_variable_get("@#{name}").nil?
+          unless instance_variable_defined?("@#{name}")
             group_index = #{@current_group.inspect}
             ensure_unique_in_group(:#{name}, group_index) unless group_index.nil?
             instance_variable_set "@#{name}", #{class_name}.new(*args)

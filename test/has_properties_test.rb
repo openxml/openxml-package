@@ -46,7 +46,7 @@ class HasPropertiesTest < Minitest::Test
 
       should "instantiate the property on first access" do
         an_element = element.new
-        refute an_element.instance_variable_get("@complex_property")
+        refute an_element.instance_variable_defined?("@complex_property")
         assert an_element.complex_property.is_a?(OpenXml::Properties::ComplexProperty)
       end
 
