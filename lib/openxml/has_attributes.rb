@@ -28,13 +28,11 @@ module OpenXml
       end
 
       def attributes
-        @attributes ||= begin
+        @attributes ||= {}.tap do |attrs|
           if superclass.respond_to?(:attributes)
-            Hash[superclass.attributes.map { |name, attribute|
-              [ name, attribute.dup ]
-            }]
-          else
-            {}
+            superclass.attributes.each do |key, value|
+              attrs[key] = value.dup
+            end
           end
         end
       end

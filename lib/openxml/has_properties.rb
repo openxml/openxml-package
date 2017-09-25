@@ -68,32 +68,22 @@ module OpenXml
       end
 
       def properties
-        @properties ||= begin
-          if superclass.respond_to?(:properties)
-            Hash[superclass.properties.map { |key, klass_name| [ key, klass_name.dup ] }]
-          else
-            {}
-          end
+        @properties ||= {}.tap do |props|
+          props.merge!(superclass.properties) if superclass.respond_to?(:properties)
         end
       end
 
       def choice_groups
-        @choice_groups ||= begin
-          if superclass.respond_to?(:choice_groups)
-            superclass.choice_groups.map(&:dup)
-          else
-            []
-          end
+        @choice_groups ||= [].tap do |choices|
+          choices.push(*superclass.choice_groups.map(&:dup)) if superclass.respond_to?(:choice_groups)
         end
       end
 
       def required_properties
-        @required_properties ||= begin
-          if superclass.respond_to?(:required_properties)
-            superclass.required_properties.dup
-          else
-            {}
-          end
+        @required_properties ||= {}.tap do |props|
+          props.merge!(superclass.required_properties) if superclass.respond_to?(:required_properties)
+        end
+      end
         end
       end
 
