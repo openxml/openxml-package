@@ -94,6 +94,31 @@ class HasAttributesTest < Minitest::Test
       assert element.respond_to? :an_attribute, "Should respond to read accessor"
       assert element.respond_to? :an_attribute=, "Should respond to write accessor"
     end
+
+    should "inherit the required attributes of its superclass" do
+      element = Class.new(class_with_attribute(:an_attribute, required: true)).new
+
+      assert_equal %i{ an_attribute }, element.required_attributes
+    end
+
+    should "not modify the required attributes of its superclass" do
+      parent = class_with_attribute(:an_attribute, required: true)
+      element = Class.new(parent) do
+        attribute :another_attribute, required: true
+      end
+
+      assert_equal %i{ an_attribute another_attribute }, element.new.required_attributes
+      assert_equal %i{ an_attribute }, parent.new.required_attributes
+    end
+  end
+
+  context "a class with a required attribute" do
+    should "raise an exception if the attribute is not set when generating xml" do
+      element = class_with_attribute(:an_attribute, required: true).new
+      assert_raises OpenXml::UnmetRequirementError do
+        element.send(:xml_attributes)
+      end
+    end
   end
 
 private
