@@ -23,7 +23,7 @@ module OpenXml
         end
       end
 
-      def add_relationship(type, target, id=nil, target_mode=nil)
+      def add_relationship(type, target, id=next_id, target_mode=nil)
         OpenXml::Elements::Relationship.new(type, target, id, target_mode).tap do |relationship|
           relationships.push relationship
         end
@@ -55,6 +55,11 @@ module OpenXml
 
     private
       attr_reader :relationships
+
+      def next_id
+        @current_id = (@current_id || 0) + 1
+        "rId#{@current_id}"
+      end
 
     end
   end

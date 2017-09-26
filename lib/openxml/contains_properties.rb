@@ -13,6 +13,7 @@ module OpenXml
     module InstanceMethods
 
       def property_xml(xml)
+        ensure_required_choices
         props = active_properties
         return unless render_properties? props
         props.each { |prop| prop.to_xml(xml) }

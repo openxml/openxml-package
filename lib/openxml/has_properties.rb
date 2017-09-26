@@ -1,3 +1,5 @@
+require "openxml/unmet_requirement"
+
 module OpenXml
   module HasProperties
 
@@ -45,7 +47,7 @@ module OpenXml
 
         class_eval <<-CODE, __FILE__, __LINE__ + 1
         def #{name}(*args)
-          if instance_variable_get("@#{name}").nil?
+          unless instance_variable_defined?("@#{name}")
             group_index = #{@current_group.inspect}
             ensure_unique_in_group(:#{name}, group_index) unless group_index.nil?
             instance_variable_set "@#{name}", #{class_name}.new(*args)
@@ -57,8 +59,8 @@ module OpenXml
       end
 
       def property_choice(required: false)
-        warn "[WARNING] `required` parameter is not yet implemented for property_choice" if required
         @current_group = choice_groups.length
+        required_choices << @current_group if required
         yield
         @current_group = nil
       end
@@ -68,32 +70,26 @@ module OpenXml
       end
 
       def properties
-        @properties ||= begin
-          if superclass.respond_to?(:properties)
-            Hash[superclass.properties.map { |key, klass_name| [ key, klass_name.dup ] }]
-          else
-            {}
-          end
+        @properties ||= {}.tap do |props|
+          props.merge!(superclass.properties) if superclass.respond_to?(:properties)
         end
       end
 
       def choice_groups
-        @choice_groups ||= begin
-          if superclass.respond_to?(:choice_groups)
-            superclass.choice_groups.map(&:dup)
-          else
-            []
-          end
+        @choice_groups ||= [].tap do |choices|
+          choices.push(*superclass.choice_groups.map(&:dup)) if superclass.respond_to?(:choice_groups)
         end
       end
 
       def required_properties
-        @required_properties ||= begin
-          if superclass.respond_to?(:required_properties)
-            superclass.required_properties.dup
-          else
-            {}
-          end
+        @required_properties ||= {}.tap do |props|
+          props.merge!(superclass.required_properties) if superclass.respond_to?(:required_properties)
+        end
+      end
+
+      def required_choices
+        @required_choices ||= [].tap do |choices|
+          choices.push(*superclass.required_choices) if superclass.respond_to?(:required_choices)
         end
       end
 
@@ -149,6 +145,7 @@ module OpenXml
     end
 
     def property_xml(xml)
+      ensure_required_choices
       props = active_properties
       return unless render_properties? props
 
@@ -196,11 +193,29 @@ module OpenXml
       self.class.required_properties
     end
 
+    def required_choices
+      self.class.required_choices
+    end
+
     def ensure_unique_in_group(name, group_index)
       other_names = (choice_groups[group_index] - [name])
-      unique = other_names.all? { |other_name| !instance_variable_defined?("@#{other_name}") }
+      unique = other_names.none? { |other_name| instance_variable_defined?("@#{other_name}") }
       message = "Property #{name} cannot also be set with #{other_names.join(", ")}."
       raise ChoiceGroupUniqueError, message unless unique
+    end
+
+    def unmet_choices
+      required_choices.reject do |choice_index|
+        choice_groups[choice_index].one? do |prop_name|
+          instance_variable_defined?("@#{prop_name}")
+        end
+      end
+    end
+
+    def ensure_required_choices
+      unmet_choice_groups = unmet_choices.map { |index| choice_groups[index].join(", ") }
+      message = "Required choice from among group(s) (#{unmet_choice_groups.join("), (")}) not made"
+      raise OpenXml::UnmetRequirementError, message if unmet_choice_groups.any?
     end
 
   end

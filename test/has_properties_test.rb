@@ -46,7 +46,7 @@ class HasPropertiesTest < Minitest::Test
 
       should "instantiate the property on first access" do
         an_element = element.new
-        refute an_element.instance_variable_get("@complex_property")
+        refute an_element.instance_variable_defined?("@complex_property")
         assert an_element.complex_property.is_a?(OpenXml::Properties::ComplexProperty)
       end
 
@@ -62,7 +62,7 @@ class HasPropertiesTest < Minitest::Test
         @element = Class.new do
           include OpenXml::HasProperties
 
-          property_choice do
+          property_choice required: true do
             value_property :property_one, as: :boolean_property
             property :property_two, as: :complex_property
           end
@@ -80,6 +80,12 @@ class HasPropertiesTest < Minitest::Test
         assert_raises OpenXml::HasProperties::ChoiceGroupUniqueError do
           another_element.property_two
           another_element.property_one = true
+        end
+      end
+
+      should "raise an exception when a required choice has not been made" do
+        assert_raises OpenXml::UnmetRequirementError do
+          element.new.property_xml(Nokogiri::XML::Builder.new)
         end
       end
     end
@@ -198,6 +204,38 @@ class HasPropertiesTest < Minitest::Test
 
       assert_equal %i{ complex_property }, parent.required_properties.keys
       assert_equal %i{ another_one complex_property }, child.new.send(:required_properties).keys.sort
+    end
+
+    should "inherit the required choice groups of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        property_choice required: true do
+          property :boolean_property
+          property :complex_property
+        end
+      end
+      child = Class.new(parent)
+
+      assert_equal [0], child.required_choices
+    end
+
+    should "not modify the required choice groups of its superclass" do
+      parent = Class.new do
+        include OpenXml::HasProperties
+        property_choice required: true do
+          property :boolean_property
+          property :complex_property
+        end
+      end
+      child = Class.new(parent) do
+        property_choice required: true do
+          property :another_boolean, as: :boolean_property
+          property :another_complex, as: :complex_property
+        end
+      end
+
+      assert_equal [0], parent.required_choices
+      assert_equal [0, 1], child.required_choices
     end
 
     should "inherit the accessors of its superclass" do

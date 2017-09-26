@@ -1,3 +1,5 @@
+require "openxml/unmet_requirement"
+
 module OpenXml
   module HasAttributes
 
@@ -8,9 +10,10 @@ module OpenXml
     module ClassMethods
 
       def attribute(name, expects: nil, one_of: nil, in_range: nil, displays_as: nil, namespace: nil, matches: nil, validation: nil, required: false, deprecated: false)
-        warn "[WARNING] `required` parameter is not yet implemented for attributes" if required
         bad_names = %w{ tag name namespace properties_tag }
         raise ArgumentError if bad_names.member? name.to_s
+
+        required_attributes.push(name) if required
 
         attr_reader name
 
@@ -28,14 +31,18 @@ module OpenXml
       end
 
       def attributes
-        @attributes ||= begin
+        @attributes ||= {}.tap do |attrs|
           if superclass.respond_to?(:attributes)
-            Hash[superclass.attributes.map { |name, attribute|
-              [ name, attribute.dup ]
-            }]
-          else
-            {}
+            superclass.attributes.each do |key, value|
+              attrs[key] = value.dup
+            end
           end
+        end
+      end
+
+      def required_attributes
+        @required_attributes ||= [].tap do |attrs|
+          attrs.push(*superclass.required_attributes) if superclass.respond_to?(:required_attributes)
         end
       end
 
@@ -58,9 +65,14 @@ module OpenXml
       self.class.attributes
     end
 
+    def required_attributes
+      self.class.required_attributes
+    end
+
   private
 
     def xml_attributes
+      ensure_required_attributes_set
       attributes.each_with_object({}) do |(name, options), attrs|
         display, namespace = options
         value = send(name)
@@ -68,6 +80,14 @@ module OpenXml
         attr_name = display.to_s if namespace.nil?
         attrs[attr_name] = value unless value.nil?
       end
+    end
+
+    def ensure_required_attributes_set
+      unset_attributes = required_attributes.reject do |attr|
+        instance_variable_defined?("@#{attr}")
+      end
+      message = "Required attribute(s) #{unset_attributes.join(", ")} have not been set"
+      raise OpenXml::UnmetRequirementError, message if unset_attributes.any?
     end
 
     def boolean(value)

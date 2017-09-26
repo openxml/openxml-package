@@ -40,7 +40,7 @@ module OpenXml
       end
 
       def to_xml
-        build_xml do |xml|
+        build_standalone_xml do |xml|
           xml.Types(xmlns: "http://schemas.openxmlformats.org/package/2006/content-types") {
             defaults.each { |extension, content_type| xml.Default("Extension" => extension, "ContentType" => content_type) }
             overrides.each { |part_name, content_type| xml.Override("PartName" => part_name, "ContentType" => content_type) }
