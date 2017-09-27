@@ -11,7 +11,7 @@ module OpenXml
     attr_reader :parent
 
     def initialize(options={})
-      @to_s_options = { with_xml: true }
+      @to_s_options = { with_xml: true, skip: :skip_none }
 
       @ns = nil
       @document = Ox::Document.new(
