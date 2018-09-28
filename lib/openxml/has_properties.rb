@@ -95,13 +95,15 @@ module OpenXml
 
       def properties_attribute(name, **args)
         properties_element.attribute name, **args
-        define_method "#{name}=" do |value|
-          properties_element.public_send :"#{name}=", value
-        end
+        class_eval <<~RUBY, __FILE__, __LINE__ + 1
+          def #{name}=(value)
+            properties_element.#{name} = value
+          end
 
-        define_method name.to_s do
-          properties_element.public_send name.to_sym
-        end
+          def #{name}
+            properties_element.#{name}
+          end
+        RUBY
       end
 
       def properties_element
