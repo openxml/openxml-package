@@ -87,68 +87,69 @@ module OpenXml
       unset_attributes = required_attributes.reject do |attr|
         instance_variable_defined?("@#{attr}")
       end
-      message = "Required attribute(s) #{unset_attributes.join(", ")} have not been set"
-      raise OpenXml::UnmetRequirementError, message if unset_attributes.any?
+      return if unset_attributes.empty?
+
+      raise OpenXml::UnmetRequirementError, "Required attribute(s) #{unset_attributes.join(", ")} have not been set"
     end
 
     def boolean(value)
-      message = "Invalid #{name}: frame must be true or false"
-      raise ArgumentError, message unless [true, false].member? value
+      return if [true, false].member? value
+      raise ArgumentError, "Invalid #{name}: frame must be true or false"
     end
 
     def hex_color(value)
-      message = "Invalid #{name}: must be :auto or a hex color, e.g. 4F1B8C"
-      raise ArgumentError, message unless value == :auto || value =~ /^[0-9A-F]{6}$/
+      return if value == :auto || value =~ /^[0-9A-F]{6}$/
+      raise ArgumentError, "Invalid #{name}: must be :auto or a hex color, e.g. 4F1B8C"
     end
 
     def hex_digit(value)
-      message = "Invalid #{name}: must be a two-digit hex number, e.g. BF"
-      raise ArgumentError, message unless value =~ /^[0-9A-F]{2}$/
+      return if value =~ /^[0-9A-F]{2}$/
+      raise ArgumentError, "Invalid #{name}: must be a two-digit hex number, e.g. BF"
     end
 
     def hex_digit_4(value)
-      message = "Invalid #{name}: must be a four-digit hex number, e.g. BF12"
-      raise ArgumentError, message unless value =~ /^[0-9A-F]{4}$/
+      return if value =~ /^[0-9A-F]{4}$/
+      raise ArgumentError, "Invalid #{name}: must be a four-digit hex number, e.g. BF12"
     end
 
     def long_hex_number(value)
-      message = "Invalid #{name}: must be an eight-digit hex number, e.g., FFAC0013"
-      raise ArgumentError, message unless value =~ /^[0-9A-F]{8}$/
+      return if value =~ /^[0-9A-F]{8}$/
+      raise ArgumentError, "Invalid #{name}: must be an eight-digit hex number, e.g., FFAC0013"
     end
 
     def hex_string(value)
-      message = "Invalid #{name}: must be a string of hexadecimal numbers, e.g. FFA23C6E"
-      raise ArgumentError, message unless value =~ /^[0-9A-F]+$/
+      return if value =~ /^[0-9A-F]+$/
+      raise ArgumentError, "Invalid #{name}: must be a string of hexadecimal numbers, e.g. FFA23C6E"
     end
 
     def integer(value)
-      message = "Invalid #{name}: must be an integer"
-      raise ArgumentError, message unless value.is_a?(Integer)
+      return if value.is_a?(Integer)
+      raise ArgumentError, "Invalid #{name}: must be an integer"
     end
 
     def positive_integer(value)
-      message = "Invalid #{name}: must be a positive integer"
-      raise ArgumentError, message unless value.is_a?(Integer) && value >= 0
+      return if value.is_a?(Integer) && value >= 0
+      raise ArgumentError, "Invalid #{name}: must be a positive integer"
     end
 
     def string(value)
-      message = "Invalid #{name}: must be a string"
-      raise ArgumentError, message if !value.is_a?(String) || value.length.zero?
+      return if value.is_a?(String) && value.length > 0
+      raise ArgumentError, "Invalid #{name}: must be a string"
     end
 
     def string_or_blank(value)
-      message = "Invalid #{name}: must be a string, even if the string is empty"
-      raise ArgumentError, message unless value.is_a?(String)
+      return if value.is_a?(String)
+      raise ArgumentError, "Invalid #{name}: must be a string, even if the string is empty"
     end
 
     def in_range?(value, range)
-      message = "Invalid #{name}: must be a number between #{range.begin} and #{range.end}"
-      raise ArgumentError, message unless range.include?(value.to_i)
+      return if range.include?(value.to_i)
+      raise ArgumentError, "Invalid #{name}: must be a number between #{range.begin} and #{range.end}"
     end
 
     def percentage(value)
-      message = "Invalid #{name}: must be a percentage"
-      raise ArgumentError, message unless value.is_a?(String) && value =~ /-?[0-9]+(\.[0-9]+)?%/ # Regex supplied in sec. 22.9.2.9 of Office Open XML docs
+      return if value.is_a?(String) && value =~ /-?[0-9]+(\.[0-9]+)?%/ # Regex supplied in sec. 22.9.2.9 of Office Open XML docs
+      raise ArgumentError, "Invalid #{name}: must be a percentage"
     end
 
     def on_or_off(value)
@@ -156,13 +157,13 @@ module OpenXml
     end
 
     def valid_in?(value, list)
-      message = "Invalid #{name}: must be one of #{list} (was #{value.inspect})"
-      raise ArgumentError, message unless list.member?(value)
+      return if list.member?(value)
+      raise ArgumentError, "Invalid #{name}: must be one of #{list} (was #{value.inspect})"
     end
 
     def matches?(value, regexp)
-      message = "Value does not match #{regexp}"
-      raise ArgumentError, message unless value =~ regexp
+      return if value =~ regexp
+      raise ArgumentError, "Value does not match #{regexp}"
     end
 
   end

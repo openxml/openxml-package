@@ -38,8 +38,7 @@ module OpenXml
       def validate_tag(tag)
         return if self.class.allowed_tags.include?(tag)
         allowed = self.class.allowed_tags.join(", ")
-        message = "Invalid tag name for #{name}: #{tag.inspect}. It should be one of #{allowed}."
-        raise ArgumentError, message
+        raise ArgumentError, "Invalid tag name for #{name}: #{tag.inspect}. It should be one of #{allowed}."
       end
 
       def render?

@@ -201,9 +201,8 @@ module OpenXml
 
     def ensure_unique_in_group(name, group_index)
       other_names = (choice_groups[group_index] - [name])
-      unique = other_names.none? { |other_name| instance_variable_defined?("@#{other_name}") }
-      message = "Property #{name} cannot also be set with #{other_names.join(", ")}."
-      raise ChoiceGroupUniqueError, message unless unique
+      return if other_names.none? { |other_name| instance_variable_defined?("@#{other_name}") }
+      raise ChoiceGroupUniqueError, "Property #{name} cannot also be set with #{other_names.join(", ")}."
     end
 
     def unmet_choices
@@ -216,8 +215,8 @@ module OpenXml
 
     def ensure_required_choices
       unmet_choice_groups = unmet_choices.map { |index| choice_groups[index].join(", ") }
-      message = "Required choice from among group(s) (#{unmet_choice_groups.join("), (")}) not made"
-      raise OpenXml::UnmetRequirementError, message if unmet_choice_groups.any?
+      return if unmet_choice_groups.empty?
+      raise OpenXml::UnmetRequirementError, "Required choice from among group(s) (#{unmet_choice_groups.join("), (")}) not made"
     end
 
   end
