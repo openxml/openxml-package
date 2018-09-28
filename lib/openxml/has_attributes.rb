@@ -9,9 +9,10 @@ module OpenXml
 
     module ClassMethods
 
+      RESERVED_NAMES = %w{ tag name namespace properties_tag }.freeze
+
       def attribute(name, expects: nil, one_of: nil, in_range: nil, displays_as: nil, namespace: nil, matches: nil, validation: nil, required: false, deprecated: false)
-        bad_names = %w{ tag name namespace properties_tag }
-        raise ArgumentError if bad_names.member? name.to_s
+        raise ArgumentError if RESERVED_NAMES.member? name.to_s
 
         required_attributes.push(name) if required
 
