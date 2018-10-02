@@ -95,13 +95,15 @@ module OpenXml
 
       def properties_attribute(name, **args)
         properties_element.attribute name, **args
-        define_method "#{name}=" do |value|
-          properties_element.public_send :"#{name}=", value
-        end
+        class_eval <<~RUBY, __FILE__, __LINE__ + 1
+          def #{name}=(value)
+            properties_element.#{name} = value
+          end
 
-        define_method name.to_s do
-          properties_element.public_send name.to_sym
-        end
+          def #{name}
+            properties_element.#{name}
+          end
+        RUBY
       end
 
       def properties_element
@@ -199,9 +201,8 @@ module OpenXml
 
     def ensure_unique_in_group(name, group_index)
       other_names = (choice_groups[group_index] - [name])
-      unique = other_names.none? { |other_name| instance_variable_defined?("@#{other_name}") }
-      message = "Property #{name} cannot also be set with #{other_names.join(", ")}."
-      raise ChoiceGroupUniqueError, message unless unique
+      return if other_names.none? { |other_name| instance_variable_defined?("@#{other_name}") }
+      raise ChoiceGroupUniqueError, "Property #{name} cannot also be set with #{other_names.join(", ")}."
     end
 
     def unmet_choices
@@ -214,8 +215,8 @@ module OpenXml
 
     def ensure_required_choices
       unmet_choice_groups = unmet_choices.map { |index| choice_groups[index].join(", ") }
-      message = "Required choice from among group(s) (#{unmet_choice_groups.join("), (")}) not made"
-      raise OpenXml::UnmetRequirementError, message if unmet_choice_groups.any?
+      return if unmet_choice_groups.empty?
+      raise OpenXml::UnmetRequirementError, "Required choice from among group(s) (#{unmet_choice_groups.join("), (")}) not made"
     end
 
   end
