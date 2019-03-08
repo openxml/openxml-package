@@ -80,7 +80,7 @@ module OpenXml
     end
 
     def write_to(path)
-      File.open(path, "w") do |file|
+      File.open(path, "wb") do |file|
         file.write to_stream.string
       end
     end
