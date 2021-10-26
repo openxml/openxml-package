@@ -1,3 +1,5 @@
+require "delegate"
+
 module OpenXml
   class Builder
     class Element < SimpleDelegator
