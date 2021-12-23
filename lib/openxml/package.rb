@@ -1,6 +1,5 @@
 require "openxml-package/version"
 require "openxml/content_types_presets"
-require "openxml/rubyzip_fix"
 require "openxml/errors"
 require "openxml/types"
 require "openxml/parts"
