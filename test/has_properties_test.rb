@@ -130,7 +130,7 @@ class HasPropertiesTest < Minitest::Test
       end
 
       should "call to_xml on each property" do
-        builder = Nokogiri::XML::Builder.new
+        builder = OpenXml::Builder.new
         mock = MiniTest::Mock.new
         def mock.render?; true; end
         mock.expect(:to_xml, nil, [ builder ])
