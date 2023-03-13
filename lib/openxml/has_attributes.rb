@@ -162,7 +162,7 @@ module OpenXml
     end
 
     def matches?(value, regexp)
-      return if value =~ regexp
+      return if value.is_a?(String) && value =~ regexp
       raise ArgumentError, "Value does not match #{regexp}"
     end
 
