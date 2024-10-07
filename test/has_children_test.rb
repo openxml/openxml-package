@@ -35,7 +35,7 @@ class HasChildrenTest < Minitest::Test
     end
 
     should "call to_xml on all of its children" do
-      child = MiniTest::Mock.new
+      child = Minitest::Mock.new
       child.expect :to_xml, "xml", %w{ xml }
       element << child
       element.to_xml "xml"
