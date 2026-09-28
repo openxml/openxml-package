@@ -7,6 +7,7 @@ SimpleCov.start do
 end
 
 require "rr"
+require "minitest/mock"
 
 require "minitest/reporters/turn_reporter"
 Minitest::Reporters.use! Minitest::Reporters::TurnReporter.new
