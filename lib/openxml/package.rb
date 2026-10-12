@@ -5,6 +5,10 @@ require "openxml/types"
 require "openxml/parts"
 require "zip"
 
+# rubyzip 3 writes Zip64 headers by default, which some
+# consumers (e.g. Google Slides) refuse to open.
+Zip.write_zip64_support = false
+
 module OpenXml
   class Package
     attr_reader :parts, :content_types, :rels
